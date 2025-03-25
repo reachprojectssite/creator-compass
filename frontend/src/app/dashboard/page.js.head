@@ -1,0 +1,50 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { 
+  Users, 
+  Globe, 
+  MessageSquare, 
+  Calendar, 
+  Clock, 
+  FileText, 
+  Settings, 
+  LogOut,
+  Menu,
+  X,
+  Bell,
+  Star,
+  ChevronRight,
+  PlusCircle,
+  UserPlus,
+  UserMinus,
+  Mail,
+  ArrowLeft,
+  X as XIcon,
+  CalendarDays,
+  ChevronDown,
+  ChevronUp,
+  List,
+  BarChart3,
+  TrendingUp,
+  Shield,
+  Search,
+  MoreHorizontal,
+  Check,
+  Share,
+  DollarSign,
+  Laptop,
+  Lock,
+  CreditCard,
+  Heart,
+  ChevronLeft,
+  Image,
+  UserRound,
+  UserSearch
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+
+export default function Dashboard() {
+  console.log("Dashboard component is rendering");
+  

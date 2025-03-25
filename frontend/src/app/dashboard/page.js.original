@@ -1,0 +1,1920 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { 
+  Users, 
+  Globe, 
+  MessageSquare, 
+  Calendar, 
+  Clock, 
+  FileText, 
+  Settings, 
+  LogOut,
+  Menu,
+  X,
+  Bell,
+  Star,
+  ChevronRight,
+  PlusCircle,
+  UserPlus,
+  UserMinus,
+  Mail,
+  ArrowLeft,
+  X as XIcon,
+  CalendarDays,
+  ChevronDown,
+  ChevronUp,
+  List,
+  BarChart3,
+  TrendingUp,
+  Shield,
+  Search,
+  MoreHorizontal,
+  Check,
+  Share,
+  DollarSign,
+  Laptop,
+  Lock,
+  CreditCard,
+  Heart,
+  ChevronLeft,
+  Image,
+  UserRound,
+  UserSearch
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+
+export default function Dashboard() {
+  console.log("Dashboard component is rendering");
+  
+  const [activeSection, setActiveSection] = useState("upcomingWebinars");
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  
+  // New interactive state
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [showUserProfile, setShowUserProfile] = useState(false);
+  const [friendRequests, setFriendRequests] = useState([
+    {
+      id: 11,
+      name: "Alex Rivera",
+      avatar: null,
+      role: "Filmmaker",
+      timestamp: "2 days ago",
+      requestDate: "2 days ago",
+      bio: "Independent filmmaker focusing on documentaries about social issues.",
+      mutualConnections: 3
+    },
+    {
+      id: 12,
+      name: "Taylor Wong",
+      avatar: null,
+      role: "Blogger",
+      timestamp: "1 week ago",
+      requestDate: "1 week ago",
+      bio: "Writing about productivity and mindfulness for creative professionals.",
+      mutualConnections: 1
+    }
+  ]);
+  const [showFriendRequests, setShowFriendRequests] = useState(false);
+  const [notifications, setNotifications] = useState(3);
+  
+  // Webinar interactive state
+  const [selectedWebinar, setSelectedWebinar] = useState(null);
+  const [showWebinarDetails, setShowWebinarDetails] = useState(false);
+  const [registeredWebinars, setRegisteredWebinars] = useState([1]); // IDs of webinars user is registered for
+  
+  // Mock friends data
+  const [friends, setFriends] = useState([
+    { id: 1, name: "Michael Brown", avatar: null, role: "Content Strategist", online: true, connected: true, lastActive: "Just now", bio: "Helping creators optimize their content strategy across platforms. 10+ years in digital marketing.", location: "New York, NY", connectionDate: "Connected 8 months ago", collaborations: 2, recentContent: "Published 'Content Strategy for 2025' ebook", tags: ["Strategy", "Marketing", "Monetization"] },
+    { id: 2, name: "Lisa Garcia", avatar: null, role: "Videographer", online: false, connected: true, lastActive: "3 hours ago", bio: "Documentary filmmaker with a focus on cultural stories. Emmy-nominated for 'Voices Unheard' series.", location: "Los Angeles, CA", connectionDate: "Connected 1 year ago", collaborations: 1, recentContent: "Released documentary 'Urban Gardens'", tags: ["Video", "Documentary", "Film"] },
+    { id: 3, name: "Robert Chen", avatar: null, role: "Graphic Designer", online: true, connected: true, lastActive: "35 minutes ago", bio: "Creating brand identities and visual systems for creators and small businesses.", location: "Miami, FL", connectionDate: "Connected 3 months ago", collaborations: 0, recentContent: "Launched design template marketplace", tags: ["Design", "Branding", "Visual"] }
+  ]);
+  
+  // Mock discover users
+  const [discoverUsers, setDiscoverUsers] = useState([
+    {
+      id: 4,
+      name: "Chris Smith",
+      avatar: null,
+      role: "Podcaster",
+      bio: "Host of 'Tech Today' podcast - discussing the latest in technology and digital culture.",
+      location: "San Francisco, CA",
+      followers: 3450,
+      content: "120 episodes",
+      online: true,
+      connected: false,
+      pending: false,
+      mutualConnections: 2,
+      tags: ["Podcasting", "Tech", "Interviews"]
+    },
+    {
+      id: 5,
+      name: "Emma Chen",
+      avatar: null,
+      role: "Writer",
+      bio: "Freelance writer specializing in travel and culture. Author of 'Wanderlust: A Digital Nomad's Journey'.",
+      location: "Portland, OR",
+      followers: 5240,
+      content: "85 articles",
+      online: false,
+      connected: false,
+      pending: false,
+      mutualConnections: 1,
+      tags: ["Writing", "Travel", "Digital Nomad"]
+    },
+    {
+      id: 6,
+      name: "David Kim",
+      avatar: null,
+      role: "Photographer",
+      bio: "Landscape and wildlife photographer with a passion for conservation. My work has appeared in National Geographic.",
+      location: "Denver, CO",
+      followers: 12800,
+      content: "350+ photos",
+      online: true,
+      connected: false,
+      pending: false,
+      mutualConnections: 0,
+      tags: ["Photography", "Nature", "Wildlife"]
+    },
+    {
+      id: 7,
+      name: "Sarah Johnson",
+      avatar: null,
+      role: "Video Creator",
+      bio: "Creating educational content on climate science and sustainable living. 500K+ views across platforms.",
+      location: "Boston, MA",
+      followers: 8750,
+      content: "75 videos",
+      online: true,
+      connected: false,
+      pending: false,
+      mutualConnections: 5,
+      tags: ["Education", "Climate", "Sustainability"]
+    },
+    {
+      id: 8,
+      name: "Marcus Williams",
+      avatar: null,
+      role: "Music Producer",
+      bio: "Independent producer specializing in lo-fi and ambient electronic music. Founder of Sunset Collective.",
+      location: "Austin, TX",
+      followers: 6320,
+      content: "28 tracks",
+      online: false,
+      connected: false,
+      pending: false,
+      mutualConnections: 2,
+      tags: ["Music", "Production", "Electronic"]
+    },
+    {
+      id: 9,
+      name: "Priya Patel",
+      avatar: null,
+      role: "Culinary Creator",
+      bio: "Sharing family recipes and fusion cooking ideas. Cookbook 'Spice Routes' coming in 2025.",
+      location: "Chicago, IL",
+      followers: 9120,
+      content: "150+ recipes",
+      online: true,
+      connected: false,
+      pending: false,
+      mutualConnections: 1,
+      tags: ["Cooking", "Food", "Recipes"]
+    },
+    {
+      id: 10,
+      name: "James Wilson",
+      avatar: null,
+      role: "Illustrator",
+      bio: "Digital artist focusing on fantasy and sci-fi concepts. Previously worked at Dreamworks Animation.",
+      location: "Seattle, WA",
+      followers: 15400,
+      content: "220 illustrations",
+      online: false,
+      connected: false,
+      pending: false,
+      mutualConnections: 0,
+      tags: ["Art", "Illustration", "Digital"]
+    }
+  ]);
+  
+  // Communities interactive state
+  const [selectedCommunity, setSelectedCommunity] = useState(null);
+  const [showCommunityDetails, setShowCommunityDetails] = useState(false);
+  const [joinedCommunities, setJoinedCommunities] = useState([]); // IDs of communities the user has joined
+  
+  // Communities data
+  const communityList = [
+    {
+      id: 1,
+      name: "Video Creators Hub",
+      description: "A community for video content creators",
+      members: 1250,
+      image: null
+    },
+    {
+      id: 2,
+      name: "Podcast Professionals",
+      description: "For podcast creators and audio engineers",
+      members: 890,
+      image: null
+    },
+    {
+      id: 3,
+      name: "Photography Masters",
+      description: "Share photography tips and get feedback",
+      members: 1560,
+      image: null
+    }
+  ];
+  
+  // Upcoming webinars data
+  const upcomingWebinars = [
+    {
+      id: 1,
+      title: "Monetizing Your Content: Strategies for 2025",
+      description: "Join industry experts to learn the latest strategies for monetizing your creative work.",
+      longDescription: "In this session, we'll explore multiple revenue streams available to creators in 2025. Our experts will share case studies, practical tips, and actionable strategies you can implement immediately. Topics include: subscription models, affiliate marketing, sponsored content, digital products, and emerging Web3 opportunities.",
+      date: "June 15, 2025",
+      time: "9 AM PT / 12 PM EST",
+      speakers: ["Jane Rodriguez", "Marcus Chen"],
+      registered: 147,
+      daysLeft: 3
+    },
+    {
+      id: 2,
+      title: "Building Your Creator Brand",
+      description: "Learn how to establish a consistent brand identity across all your platforms.",
+      longDescription: "Your personal brand is your most valuable asset as a creator. This webinar focuses on developing a unique brand identity, creating consistent visual elements, messaging strategies, and positioning yourself within your niche. You'll leave with a brand development workbook and actionable steps to refine your creator brand.",
+      date: "July 2, 2025",
+      time: "9 AM PT / 12 PM EST",
+      speakers: ["Alex Thompson", "Lisa Wang"],
+      registered: 98,
+      daysLeft: 20
+    },
+    {
+      id: 3,
+      title: "Video Production Masterclass",
+      description: "Elevate your video content with professional production techniques.",
+      longDescription: "Whether you're shooting on a smartphone or professional camera, this masterclass will help you level up your video production quality. Topics include lighting setups on any budget, audio recording essentials, composition techniques, and efficient editing workflows. Both beginners and experienced creators will find valuable takeaways.",
+      date: "July 15, 2025",
+      time: "9 AM PT / 12 PM EST",
+      speakers: ["David Kim", "Rebecca Martinez"],
+      registered: 123,
+      daysLeft: 33
+    },
+    {
+      id: 4,
+      title: "Growth Strategies for New Platforms",
+      description: "Stay ahead of the curve by mastering emerging social platforms.",
+      longDescription: "As the creator landscape evolves, new platforms continuously emerge. This forward-looking session explores growth strategies for the latest platforms gaining traction. Learn how to evaluate which platforms deserve your attention, how to adapt your content for different environments, and techniques to build audience on emerging platforms before they become mainstream.",
+      date: "August 5, 2025",
+      time: "9 AM PT / 12 PM EST",
+      speakers: ["Michelle Lee", "James Wilson"],
+      registered: 75,
+      daysLeft: 54
+    }
+  ];
+  
+  // Resources interactive state
+  const [activeResourceCategory, setActiveResourceCategory] = useState("All Resources");
+  const [downloadedResources, setDownloadedResources] = useState([]);
+  
+  // Resource categories
+  const resourceCategories = ["All Resources", "Marketing", "Production", "Monetization", "Growth", "Tools", "Legal"];
+  
+  // Resources data
+  const resources = [
+    {
+      id: 1,
+      title: "Complete Guide to Content Monetization",
+      type: "Guide",
+      category: "Monetization",
+      description: "Learn 12 proven strategies to monetize your content across different platforms.",
+      dateAdded: "May 15, 2025",
+      fileSize: "2.4 MB"
+    },
+    {
+      id: 2,
+      title: "Social Media Content Calendar",
+      type: "Template",
+      category: "Marketing",
+      description: "Stay organized with this ready-to-use content planning template.",
+      dateAdded: "May 15, 2025",
+      fileSize: "845 KB"
+    },
+    {
+      id: 3,
+      title: "Lighting Setup for Professional Videos",
+      type: "Video",
+      category: "Production",
+      description: "Create studio-quality lighting on any budget with these techniques.",
+      dateAdded: "May 15, 2025",
+      fileSize: "48 MB"
+    },
+    {
+      id: 4,
+      title: "Copyright Guidelines for Creators",
+      type: "PDF",
+      category: "Legal",
+      description: "Essential legal information every creator should know about copyright.",
+      dateAdded: "June 1, 2025",
+      fileSize: "1.2 MB"
+    },
+    {
+      id: 5,
+      title: "Audience Growth Tactics Checklist",
+      type: "PDF",
+      category: "Growth",
+      description: "A comprehensive checklist to grow your audience organically.",
+      dateAdded: "May 28, 2025",
+      fileSize: "845 KB"
+    },
+    {
+      id: 6,
+      title: "Brand Partnership Agreement Template",
+      type: "Document",
+      category: "Legal",
+      description: "Protect yourself with this professional brand partnership contract template.",
+      dateAdded: "May 24, 2025",
+      fileSize: "320 KB"
+    },
+    {
+      id: 7,
+      title: "Podcast Launch Checklist",
+      type: "Spreadsheet",
+      category: "Production",
+      description: "Everything you need to launch a successful podcast.",
+      dateAdded: "May 20, 2025",
+      fileSize: "450 KB"
+    }
+  ];
+  
+  // Filter resources by category
+  const filteredResources = activeResourceCategory === "All Resources"
+    ? resources
+    : resources.filter(resource => resource.category === activeResourceCategory);
+  
+  // Handle resource download
+  const handleDownloadResource = (resource) => {
+    if (downloadedResources.includes(resource.id)) {
+      alert(`Opening ${resource.title}`);
+    } else {
+      setDownloadedResources(prev => [...prev, resource.id]);
+      alert(`Downloading ${resource.title} (${resource.fileSize})`);
+    }
+  };
+  
+  // Change resource category
+  const handleChangeResourceCategory = (category) => {
+    setActiveResourceCategory(category);
+  };
+  
+  // Request a new resource
+  const handleRequestResource = () => {
+    const resourceType = prompt("What type of resource would you like to request?");
+    if (resourceType) {
+      alert(`Thank you for your request! We'll consider adding a resource about "${resourceType}" in the future.`);
+    }
+  };
+  
+  // Authentication check - this would be replaced with a real auth check
+  useEffect(() => {
+    // Mock auth check - in a real app, redirect if not logged in
+    const isLoggedIn = true; // Replace with actual auth check
+    if (!isLoggedIn) {
+      window.location.href = "/login";
+    }
+    
+    // Add smooth scroll behavior
+    document.documentElement.style.scrollBehavior = 'smooth';
+    
+    return () => {
+      document.documentElement.style.scrollBehavior = 'auto';
+    };
+  }, []);
+
+  // Toggle mobile navigation
+  const toggleMobileNav = () => {
+    setMobileNavOpen(!mobileNavOpen);
+  };
+  
+  // Handle friend request
+  const handleConnect = (user) => {
+    // In a real app, this would send a friend request to the backend
+    alert(`Friend request sent to ${user.name}`);
+    
+    // Update the discover users list to show pending status
+    setDiscoverUsers(prev => 
+      prev.map(u => u.id === user.id ? {...u, pending: true} : u)
+    );
+  };
+  
+  // Handle friend removal
+  const handleRemoveFriend = (friendId) => {
+    if (confirm("Are you sure you want to remove this friend?")) {
+      setFriends(prev => prev.filter(friend => friend.id !== friendId));
+      
+      // If we're viewing this user's profile, close it
+      if (selectedUser && selectedUser.id === friendId) {
+        setShowUserProfile(false);
+        setSelectedUser(null);
+      }
+    }
+  };
+  
+  // View a user profile
+  const handleViewProfile = (user) => {
+    setSelectedUser(user);
+    setShowUserProfile(true);
+  };
+  
+  // Close user profile
+  const handleCloseProfile = () => {
+    setShowUserProfile(false);
+    setSelectedUser(null);
+  };
+  
+  // Accept a friend request
+  const handleAcceptRequest = (request) => {
+    // Add to friends
+    setFriends(prev => [...prev, {...request, connected: true, online: true}]);
+    
+    // Remove from requests
+    setFriendRequests(prev => prev.filter(req => req.id !== request.id));
+    
+    // Update notifications count
+    setNotifications(prev => Math.max(0, prev - 1));
+    
+    if (friendRequests.length === 1) {
+      setShowFriendRequests(false);
+    }
+  };
+  
+  // Reject a friend request
+  const handleRejectRequest = (requestId) => {
+    setFriendRequests(prev => prev.filter(req => req.id !== requestId));
+    setNotifications(prev => Math.max(0, prev - 1));
+    
+    if (friendRequests.length === 1) {
+      setShowFriendRequests(false);
+    }
+  };
+
+  // Handle webinar registration
+  const handleRegisterWebinar = (webinarId) => {
+    if (registeredWebinars.includes(webinarId)) {
+      // Unregister
+      setRegisteredWebinars(prev => prev.filter(id => id !== webinarId));
+      alert("You have been unregistered from this webinar.");
+    } else {
+      // Register
+      setRegisteredWebinars(prev => [...prev, webinarId]);
+      alert("You have been registered for this webinar!");
+    }
+  };
+  
+  // View webinar details
+  const handleViewWebinarDetails = (webinar) => {
+    setSelectedWebinar(webinar);
+    setShowWebinarDetails(true);
+  };
+  
+  // Close webinar details
+  const handleCloseWebinarDetails = () => {
+    setShowWebinarDetails(false);
+    setSelectedWebinar(null);
+  };
+  
+  // Add to calendar 
+  const handleAddToCalendar = (webinar) => {
+    alert(`Added "${webinar.title}" to your calendar!`);
+  };
+
+  // Handle join community - RENAMED to avoid conflict
+  const handleJoinCommunityLegacy = (communityId) => {
+    if (joinedCommunities.includes(communityId)) {
+      if (confirm("Are you sure you want to leave this community?")) {
+        // Leave community
+        setJoinedCommunities(prev => prev.filter(id => id !== communityId));
+        alert("You have left the community.");
+      }
+    } else {
+      // Join community
+      setJoinedCommunities(prev => [...prev, communityId]);
+      alert("You have joined the community!");
+    }
+  };
+  
+  // View community details
+  const handleViewCommunityDetails = (community) => {
+    setSelectedCommunity(community);
+    setShowCommunityDetails(true);
+  };
+  
+  // Close community details
+  const handleCloseCommunityDetails = () => {
+    setShowCommunityDetails(false);
+    setSelectedCommunity(null);
+  };
+
+  // Calendar view state
+  const [calendarView, setCalendarView] = useState("month"); // "month" or "list"
+  
+  // Previous webinars sample data
+  const [previousWebinars, setPreviousWebinars] = useState([
+    {
+      id: 101,
+      title: "Content Creation Masterclass",
+      description: "Learn advanced content creation techniques for multiple platforms.",
+      date: "May 10, 2025",
+      duration: "1h 45m",
+      speakers: ["Jane Smith", "Michael Brown"],
+      views: 245,
+      favorite: false
+    },
+    {
+      id: 102,
+      title: "Monetization Strategies",
+      description: "Discover 12 proven ways to monetize your content in 2025.",
+      date: "April 28, 2025",
+      duration: "2h 10m",
+      speakers: ["Alex Johnson"],
+      views: 312,
+      favorite: true
+    }
+  ]);
+
+  // Chat section data
+  const [chatChannels, setChatChannels] = useState([
+    {
+      id: 'ch1',
+      type: 'channel',
+      name: 'general',
+      description: 'General discussions',
+      unreadCount: 0,
+      messages: [
+        {
+          sender: { id: 'user123', name: 'Alex Johnson', avatar: null },
+          content: 'Hi everyone! Has anyone tried the new analytics dashboard?',
+          time: '10:25 AM',
+          status: 'read'
+        },
+        {
+          sender: { id: 'user456', name: 'Sarah Miller', avatar: null },
+          content: 'Yes, it\'s really helpful for tracking engagement!',
+          time: '10:28 AM',
+          status: 'read'
+        },
+        {
+          sender: { id: 'currentUser', name: 'You', avatar: null },
+          content: 'I need to check it out. Where can I find it?',
+          time: '10:30 AM',
+          status: 'read'
+        },
+        {
+          sender: { id: 'user123', name: 'Alex Johnson', avatar: null },
+          content: 'Go to Settings > Analytics > Dashboard',
+          time: '10:32 AM',
+          status: 'read'
+        }
+      ]
+    },
+    {
+      id: 'ch2',
+      type: 'channel',
+      name: 'resources',
+      description: 'Share helpful resources',
+      unreadCount: 5,
+      messages: []
+    },
+    {
+      id: 'ch3',
+      type: 'channel',
+      name: 'introductions',
+      description: 'Introduce yourself!',
+      unreadCount: 0,
+      messages: []
+    }
+  ]);
+  
+  const [chatDirectMessages, setChatDirectMessages] = useState([
+    {
+      id: 'dm1',
+      type: 'direct',
+      name: 'Chris Smith',
+      status: 'online',
+      lastMessage: 'Let me know when you finish that project',
+      unreadCount: 2,
+      avatar: null,
+      messages: [
+        {
+          sender: { id: 'user789', name: 'Chris Smith', avatar: null },
+          content: "Hey, how's the new content strategy coming along?",
+          time: 'Yesterday 4:30 PM',
+          status: 'read'
+        },
+        {
+          sender: { id: 'currentUser', name: 'You', avatar: null },
+          content: "It's going well! I've mapped out the next three months.",
+          time: 'Yesterday 4:45 PM',
+          status: 'read'
+        },
+        {
+          sender: { id: 'user789', name: 'Chris Smith', avatar: null },
+          content: "That's great! Can you present it at the next meeting?",
+          time: 'Yesterday 5:00 PM',
+          status: 'read'
+        },
+        {
+          sender: { id: 'user789', name: 'Chris Smith', avatar: null },
+          content: 'Let me know when you finish that project',
+          time: '8:45 AM',
+          status: 'delivered'
+        }
+      ]
+    },
+    {
+      id: 'dm2',
+      type: 'direct',
+      name: 'Emily Davis',
+      status: 'away',
+      lastMessage: 'Thanks for the feedback!',
+      unreadCount: 0,
+      avatar: null,
+      messages: []
+    },
+    {
+      id: 'dm3',
+      type: 'direct',
+      name: 'Michael Wilson',
+      status: 'offline',
+      lastMessage: 'See you at the workshop next week',
+      unreadCount: 0,
+      avatar: null,
+      messages: []
+    }
+  ]);
+  
+  const [selectedChannel, setSelectedChannel] = useState(null);
+  const [chatMessage, setChatMessage] = useState('');
+  const [showNewChatModal, setShowNewChatModal] = useState(false);
+  
+  // Handle sending a chat message
+  const handleSendMessage = (message) => {
+    if (!message.trim()) return;
+    
+    // Add the message to the current channel
+    if (selectedChannel) {
+      const newMessage = {
+        sender: { id: 'currentUser', name: 'You', avatar: null },
+        content: message,
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        status: 'delivered'
+      };
+      
+      setSelectedChannel(prev => ({
+        ...prev,
+        messages: [...(prev.messages || []), newMessage]
+      }));
+      
+      // Update the channel in the channels list
+      if (selectedChannel.type === 'channel') {
+        setChatChannels(prev => 
+          prev.map(channel => 
+            channel.id === selectedChannel.id 
+              ? { ...channel, messages: [...(channel.messages || []), newMessage] }
+              : channel
+          )
+        );
+      } else if (selectedChannel.type === 'direct') {
+        setChatDirectMessages(prev => 
+          prev.map(dm => 
+            dm.id === selectedChannel.id 
+              ? { ...dm, messages: [...(dm.messages || []), newMessage], lastMessage: message }
+              : dm
+          )
+        );
+      }
+      
+      setChatMessage('');
+    }
+  };
+  
+  // Communities data
+  const [communities, setCommunities] = useState([
+    {
+      id: 1,
+      name: "Video Creators Network",
+      description: "A community for video creators to share tips, collaborate, and grow together.",
+      members: 1247,
+      category: "Video",
+      coverImage: null,
+      joined: true,
+      posts: [
+        {
+          id: 101,
+          author: {
+            name: "Sarah Miller",
+            avatar: null,
+            role: "Community Leader"
+          },
+          content: "Just released a new tutorial on color grading in DaVinci Resolve! Check it out and let me know what you think.",
+          timestamp: "2 hours ago",
+          likes: 24,
+          comments: 8,
+          liked: false
+        },
+        {
+          id: 102,
+          author: {
+            name: "Alex Johnson",
+            avatar: null,
+            role: "Member"
+          },
+          content: "Looking for collaborators for a new YouTube series about sustainable living. DM me if interested!",
+          timestamp: "Yesterday",
+          likes: 15,
+          comments: 12,
+          liked: true
+        }
+      ],
+      events: [
+        {
+          id: 201,
+          title: "Live Q&A: Growing Your Channel in 2025",
+          date: "June 15, 2025",
+          time: "7:00 PM EST",
+          attendees: 78,
+          registered: true
+        },
+        {
+          id: 202,
+          title: "Workshop: Advanced Editing Techniques",
+          date: "June 22, 2025",
+          time: "3:00 PM EST",
+          attendees: 42,
+          registered: false
+        }
+      ]
+    },
+    {
+      id: 2,
+      name: "Podcasters United",
+      description: "For podcast creators to exchange ideas, improve audio quality, and build audiences.",
+      members: 856,
+      category: "Audio",
+      coverImage: null,
+      joined: true,
+      posts: [
+        {
+          id: 103,
+          author: {
+            name: "David Chen",
+            avatar: null,
+            role: "Moderator"
+          },
+          content: "What microphone setup is everyone using these days? Looking to upgrade my home studio.",
+          timestamp: "4 hours ago",
+          likes: 19,
+          comments: 32,
+          liked: false
+        }
+      ],
+      events: [
+        {
+          id: 203,
+          title: "Panel: Monetization Strategies for Podcasters",
+          date: "June 18, 2025",
+          time: "6:00 PM EST",
+          attendees: 63,
+          registered: true
+        }
+      ]
+    },
+    {
+      id: 3,
+      name: "Content Creators Hub",
+      description: "A general community for all types of content creators to network and share experiences.",
+      members: 2145,
+      category: "General",
+      coverImage: null,
+      joined: false,
+      posts: [],
+      events: []
+    },
+    {
+      id: 4,
+      name: "Photography Masters",
+      description: "Professional and amateur photographers sharing techniques and critique.",
+      members: 943,
+      category: "Photography",
+      coverImage: null,
+      joined: false,
+      posts: [],
+      events: []
+    }
+  ]);
+  
+  const [activeCommunity, setActiveCommunity] = useState(null);
+  const [activeCommunityTab, setActiveCommunityTab] = useState("feed");
+  const [communityPost, setCommunityPost] = useState("");
+  
+  // Handle joining a community
+  const handleJoinCommunity = (communityId) => {
+    setCommunities(prev => 
+      prev.map(community => 
+        community.id === communityId 
+          ? { ...community, joined: true }
+          : community
+      )
+    );
+  };
+  
+  // Handle leaving a community
+  const handleLeaveCommunity = (communityId) => {
+    if (confirm("Are you sure you want to leave this community?")) {
+      setCommunities(prev => 
+        prev.map(community => 
+          community.id === communityId 
+            ? { ...community, joined: false }
+            : community
+        )
+      );
+      
+      // If viewing this community, go back to list view
+      if (activeCommunity && activeCommunity.id === communityId) {
+        setActiveCommunity(null);
+      }
+    }
+  };
+  
+  // Handle liking a post
+  const handleLikePost = (communityId, postId) => {
+    setCommunities(prev => 
+      prev.map(community => {
+        if (community.id === communityId) {
+          const updatedPosts = community.posts.map(post => {
+            if (post.id === postId) {
+              return { 
+                ...post, 
+                liked: !post.liked, 
+                likes: post.liked ? post.likes - 1 : post.likes + 1 
+              };
+            }
+            return post;
+          });
+          return { ...community, posts: updatedPosts };
+        }
+        return community;
+      })
+    );
+  };
+  
+  // Handle submitting a new post
+  const handleSubmitPost = (communityId) => {
+    if (!communityPost.trim()) return;
+    
+    const newPost = {
+      id: Date.now(),
+      author: {
+        name: "You",
+        avatar: null,
+        role: "Member"
+      },
+      content: communityPost,
+      timestamp: "Just now",
+      likes: 0,
+      comments: 0,
+      liked: false
+    };
+    
+    setCommunities(prev => 
+      prev.map(community => {
+        if (community.id === communityId) {
+          return { ...community, posts: [newPost, ...community.posts] };
+        }
+        return community;
+      })
+    );
+    
+    setCommunityPost("");
+  };
+  
+  // Handle registering for an event
+  const handleRegisterForEvent = (communityId, eventId) => {
+    setCommunities(prev => 
+      prev.map(community => {
+        if (community.id === communityId) {
+          const updatedEvents = community.events.map(event => {
+            if (event.id === eventId) {
+              return { 
+                ...event, 
+                registered: !event.registered,
+                attendees: event.registered ? event.attendees - 1 : event.attendees + 1
+              };
+            }
+            return event;
+          });
+          return { ...community, events: updatedEvents };
+        }
+        return community;
+      })
+    );
+  };
+  
+  // Filter communities by joined status
+  const [showOnlyJoinedCommunities, setShowOnlyJoinedCommunities] = useState(false);
+  const filteredCommunities = showOnlyJoinedCommunities 
+    ? communities.filter(community => community.joined)
+    : communities;
+    
+  // Chat messages state
+  const [chatMessages, setChatMessages] = useState([
+    { 
+      id: 1, 
+      user: "Sarah Johnson", 
+      avatar: "SJ", 
+      time: "10:23 AM", 
+      message: "Has anyone tried the new editing software that was shared in last week's webinar?",
+      replies: 3,
+      isReply: false,
+      isSystem: false
+    },
+    { 
+      id: 2, 
+      user: "Michael Chen", 
+      avatar: "MC", 
+      time: "10:28 AM", 
+      message: "Yes! I've been using it for a week now. The interface is much cleaner and the render times are significantly faster. I'd definitely recommend giving it a try.",
+      replies: 0,
+      isReply: true,
+      isSystem: false
+    }
+  ]);
+  
+  // Categories for filtering discovery
+  const [discoveryCategories, setDiscoveryCategories] = useState([
+    { id: "all", name: "All Creators", count: 7, active: true },
+    { id: "video", name: "Video", count: 1, active: false },
+    { id: "audio", name: "Audio & Podcasts", count: 2, active: false },
+    { id: "writing", name: "Writing", count: 1, active: false },
+    { id: "visual", name: "Visual Arts", count: 2, active: false },
+    { id: "other", name: "Other", count: 1, active: false }
+  ]);
+  
+  // Filter for discovery
+  const [discoveryFilter, setDiscoveryFilter] = useState({
+    search: "",
+    category: "all",
+    sortBy: "recommended" // options: recommended, newest, mutual
+  });
+  
+  // Handle viewing previous webinar
+  const handleViewPreviousWebinar = (webinarId) => {
+    alert(`Playing recording for webinar ID: ${webinarId}`);
+  };
+  
+  // Handle toggling favorite status of a previous webinar
+  const handleToggleFavorite = (webinarId) => {
+    setPreviousWebinars(prev => 
+      prev.map(webinar => 
+        webinar.id === webinarId 
+          ? {...webinar, favorite: !webinar.favorite} 
+          : webinar
+      )
+    );
+  };
+  
+  // Notification count for friend requests
+  const [notificationCount, setNotificationCount] = useState(friendRequests.length);
+
+  // Active people section tab
+  const [activePeopleTab, setActivePeopleTab] = useState("friends");
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex flex-col">
+      {/* Header */}
+      <header className="bg-white/90 backdrop-blur-md py-3 border-b border-slate-200 sticky top-0 z-40 shadow-sm">
+        <div className="container mx-auto px-4 flex justify-between items-center">
+          <div className="flex items-center">
+            <button 
+              className="md:hidden mr-4 text-slate-600 hover:text-amber-500 transition-colors" 
+              onClick={toggleMobileNav}
+            >
+              {mobileNavOpen ? <X size={22} /> : <Menu size={22} />}
+            </button>
+            <h1 className="font-bold text-lg text-transparent bg-clip-text bg-gradient-to-r from-amber-500 to-orange-500">Creator Webinars</h1>
+          </div>
+          
+          <div className="flex items-center gap-5">
+            <div className="relative hidden md:flex items-center">
+              <input 
+                type="text" 
+                placeholder="Search..." 
+                className="py-1.5 pl-9 pr-4 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent w-64 transition-all"
+              />
+              <Search size={16} className="absolute left-3 text-slate-400"/>
+            </div>
+            <button 
+              className="text-slate-600 relative hover:text-amber-500 transition-colors"
+              onClick={() => setShowFriendRequests(!showFriendRequests)}
+            >
+              <Bell size={20} className="transform hover:rotate-12 transition-transform" />
+              {notifications > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium shadow-md">
+                  {notifications}
+                </span>
+              )}
+            </button>
+            <div 
+              className="h-9 w-9 bg-gradient-to-br from-amber-500 to-orange-500 rounded-full flex items-center justify-center text-white font-semibold text-sm cursor-pointer shadow-md hover:shadow-lg transition-shadow ring-2 ring-white"
+              onClick={() => setActiveSection("settings")}
+            >
+              JD
+            </div>
+          </div>
+        </div>
+        
+        {/* Friend Requests Dropdown */}
+        {showFriendRequests && (
+          <div className="absolute right-4 mt-2 w-80 bg-white rounded-lg shadow-xl border border-slate-200 z-50 animate-in fade-in slide-in-from-top-5 duration-200">
+            <div className="p-3 border-b border-slate-200 flex justify-between items-center">
+              <h3 className="font-semibold text-slate-800">Notifications</h3>
+              <button 
+                className="text-slate-400 hover:text-slate-600"
+                onClick={() => setShowFriendRequests(false)}
+              >
+                <X size={18} />
+              </button>
+            </div>
+            
+            <div className="max-h-80 overflow-y-auto">
+              {friendRequests.length === 0 ? (
+                <div className="p-4 text-center text-slate-500">
+                  No new notifications
+                </div>
+              ) : (
+                friendRequests.map(request => (
+                  <div key={request.id} className="p-3 border-b border-slate-100 hover:bg-amber-50 transition-colors">
+                    <div className="flex items-start gap-3">
+                      <div className="h-10 w-10 rounded-full bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center text-white font-medium shadow-md">
+                        {request.avatar}
+                      </div>
+                      <div className="flex-grow">
+                        <p className="font-medium text-sm text-slate-800">
+                          <span className="font-semibold">{request.name}</span> wants to connect with you
+                        </p>
+                        <p className="text-xs text-slate-500">{request.timestamp}</p>
+                        
+                        <div className="flex gap-2 mt-2">
+                          <Button 
+                            size="sm" 
+                            className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-xs h-8 px-3 shadow-md hover:shadow-lg transform hover:scale-105 transition-all"
+                            onClick={() => handleAcceptRequest(request)}
+                          >
+                            Accept
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="border-slate-200 text-slate-700 hover:bg-slate-50 text-xs h-8 px-3 transition-colors"
+                            onClick={() => handleRejectRequest(request.id)}
+                          >
+                            Decline
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        )}
+      </header>
+
+      <div className="flex flex-grow">
+        {/* Sidebar - Hidden on mobile unless toggled */}
+        <aside className={`${mobileNavOpen ? 'block' : 'hidden'} md:block bg-white/95 backdrop-blur-md w-64 border-r border-slate-200 fixed md:sticky top-[57px] h-[calc(100vh-57px)] shadow-md z-30 transition-all duration-200`}>
+          <div className="p-4 flex flex-col h-full">
+            <nav className="space-y-2 flex-grow">
+              <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 px-3">Dashboard</h2>
+              {[
+                {id: "people", icon: <Users size={17} strokeWidth={2.2} />, label: "People"},
+                {id: "communities", icon: <Globe size={17} strokeWidth={2.2} />, label: "Communities"},
+                {id: "chat", icon: <MessageSquare size={17} strokeWidth={2.2} />, label: "Chat"}
+              ].map(item => (
+                <button 
+                  key={item.id}
+                  onClick={() => {setActiveSection(item.id); setMobileNavOpen(false);}}
+                  className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-md text-sm font-medium transition-all duration-200 group relative overflow-hidden ${
+                    activeSection === item.id 
+                      ? 'text-amber-900 bg-gradient-to-r from-amber-500/10 to-orange-500/10' 
+                      : 'text-slate-600 hover:text-slate-800 hover:bg-slate-100'
+                  }`}
+                >
+                  {activeSection === item.id && (
+                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-amber-500 to-orange-500 rounded-r-full" />
+                  )}
+                  <span className={`${activeSection === item.id ? 'text-amber-500' : 'text-slate-400 group-hover:text-amber-500'} transition-colors duration-200`}>
+                    {item.icon}
+                  </span>
+                  {item.label}
+                </button>
+              ))}
+              
+              <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 mt-6 px-3">Webinars</h2>
+              {[
+                {id: "upcomingWebinars", icon: <Calendar size={17} strokeWidth={2.2} />, label: "Upcoming Webinars"},
+                {id: "calendar", icon: <CalendarDays size={17} strokeWidth={2.2} />, label: "My Calendar"},
+                {id: "previousWebinars", icon: <Clock size={17} strokeWidth={2.2} />, label: "Previous Webinars"},
+                {id: "resources", icon: <FileText size={17} strokeWidth={2.2} />, label: "Resources"}
+              ].map(item => (
+                <button 
+                  key={item.id}
+                  onClick={() => {setActiveSection(item.id); setMobileNavOpen(false);}}
+                  className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-md text-sm font-medium transition-all duration-200 group relative overflow-hidden ${
+                    activeSection === item.id 
+                      ? 'text-amber-900 bg-gradient-to-r from-amber-500/10 to-orange-500/10' 
+                      : 'text-slate-600 hover:text-slate-800 hover:bg-slate-100'
+                  }`}
+                >
+                  {activeSection === item.id && (
+                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-amber-500 to-orange-500 rounded-r-full" />
+                  )}
+                  <span className={`${activeSection === item.id ? 'text-amber-500' : 'text-slate-400 group-hover:text-amber-500'} transition-colors duration-200`}>
+                    {item.icon}
+                  </span>
+                  {item.label}
+                </button>
+              ))}
+              
+              <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 mt-6 px-3">Account</h2>
+              <button 
+                onClick={() => {setActiveSection("settings"); setMobileNavOpen(false);}}
+                className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-md text-sm font-medium transition-all duration-200 group relative overflow-hidden ${
+                  activeSection === "settings" 
+                    ? 'text-amber-900 bg-gradient-to-r from-amber-500/10 to-orange-500/10' 
+                    : 'text-slate-600 hover:text-slate-800 hover:bg-slate-100'
+                }`}
+              >
+                {activeSection === "settings" && (
+                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-amber-500 to-orange-500 rounded-r-full" />
+                )}
+                <span className={`${activeSection === "settings" ? 'text-amber-500' : 'text-slate-400 group-hover:text-amber-500'} transition-colors duration-200`}>
+                  <Settings size={17} strokeWidth={2.2} />
+                </span>
+                Settings
+              </button>
+            </nav>
+            
+            <Link 
+              href="/login" 
+              className="flex items-center gap-3 px-3 py-2.5 mt-4 text-red-600 hover:bg-red-50 rounded-md text-sm font-medium transition-colors"
+            >
+              <LogOut size={17} strokeWidth={2.2} />
+              Logout
+            </Link>
+          </div>
+        </aside>
+
+        {/* Main content */}
+        <main className="flex-grow p-6 md:p-8">
+          <div className="max-w-7xl mx-auto">
+            {/* Upcoming Webinars Section */}
+            {activeSection === "upcomingWebinars" && (
+              <div className="animate-fadeIn">
+                {showWebinarDetails ? (
+                  <div>
+                    <div className="flex items-center mb-6">
+                      <button 
+                        onClick={handleCloseWebinarDetails}
+                        className="mr-3 p-2 rounded-md hover:bg-amber-100 text-slate-600 transition-colors"
+                      >
+                        <ArrowLeft size={20} />
+                      </button>
+                      <h1 className="text-2xl font-bold text-slate-800">Webinar Details</h1>
+                    </div>
+                    
+                    <div className="bg-white rounded-xl border border-slate-200 shadow-lg overflow-hidden mb-8">
+                      <div className="bg-gradient-to-r from-amber-600 to-orange-600 h-20 flex items-center px-8 relative">
+                        <div className="absolute inset-0 overflow-hidden">
+                          <div className="absolute -right-20 -top-20 w-80 h-80 rounded-full bg-gradient-to-br from-white/10 to-transparent opacity-20"></div>
+                          <div className="absolute -left-20 -bottom-40 w-80 h-80 rounded-full bg-gradient-to-tr from-white/10 to-transparent opacity-20"></div>
+                        </div>
+                        <div className="relative">
+                          <h2 className="text-white font-bold text-2xl">{selectedWebinar.title}</h2>
+                        </div>
+                      </div>
+                      
+                      <div className="p-8">
+                        <div className="flex flex-wrap gap-5 mb-8 border-b border-slate-200 pb-8">
+                          <div className="flex items-center bg-slate-50 px-4 py-2 rounded-full shadow-sm">
+                            <Calendar size={18} className="mr-2 text-amber-500" />
+                            <span className="font-medium text-slate-800">{selectedWebinar.date}</span>
+                          </div>
+                          <div className="flex items-center bg-slate-50 px-4 py-2 rounded-full shadow-sm">
+                            <Clock size={18} className="mr-2 text-amber-500" />
+                            <span className="font-medium text-slate-800">{selectedWebinar.time}</span>
+                          </div>
+                          <div className="flex items-center bg-slate-50 px-4 py-2 rounded-full shadow-sm">
+                            <Users size={18} className="mr-2 text-amber-500" />
+                            <span className="font-medium text-slate-800">{selectedWebinar.registered} Registered</span>
+                          </div>
+                          <div className="flex items-center bg-slate-50 px-4 py-2 rounded-full shadow-sm ml-auto">
+                            <span className="font-medium text-amber-600">
+                              {selectedWebinar.daysLeft === 0 ? "Today" : `${selectedWebinar.daysLeft} days left`}
+                            </span>
+                          </div>
+                        </div>
+                        
+                        <div className="mb-8">
+                          <h3 className="font-semibold text-lg text-slate-800 mb-3">About this Webinar</h3>
+                          <p className="text-slate-600 leading-relaxed">{selectedWebinar.longDescription}</p>
+                        </div>
+                        
+                        <div className="mb-8">
+                          <h3 className="font-semibold text-lg text-slate-800 mb-3">Speakers</h3>
+                          <div className="grid md:grid-cols-2 gap-4">
+                            {selectedWebinar.speakers.map((speaker, i) => (
+                              <div key={i} className="flex items-center gap-3 bg-gradient-to-br from-slate-50 to-white py-3 px-4 rounded-lg border border-slate-200 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
+                                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center text-white font-semibold text-sm shadow-md">
+                                  {speaker.split(' ').map(n => n[0]).join('')}
+                                </div>
+                                <div>
+                                  <p className="font-semibold text-slate-800">{speaker}</p>
+                                  <p className="text-xs text-slate-500">Industry Expert</p>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                        
+                        <div className="flex flex-wrap gap-4">
+                          <Button 
+                            className={registeredWebinars.includes(selectedWebinar.id) 
+                              ? "bg-green-600 hover:bg-green-700 shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all" 
+                              : "bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all"
+                            }
+                            onClick={() => handleRegisterWebinar(selectedWebinar.id)}
+                          >
+                            {registeredWebinars.includes(selectedWebinar.id) ? (
+                              <div className="flex items-center">
+                                <div className="bg-white rounded-full w-5 h-5 flex items-center justify-center mr-2">
+                                  <Check size={12} className="text-green-600" />
+                                </div>
+                                Registered
+                              </div>
+                            ) : "Register Now"}
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            className="border-slate-200 text-amber-600 hover:border-amber-200 hover:bg-amber-50 shadow-sm transition-all flex items-center gap-2"
+                            onClick={() => handleAddToCalendar(selectedWebinar)}
+                          >
+                            <CalendarDays size={16} />
+                            Add to Calendar
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            className="border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50 shadow-sm transition-all flex items-center gap-2 ml-auto"
+                          >
+                            <Share size={16} />
+                            Share
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="grid md:grid-cols-2 gap-6 mb-8">
+                      <div className="bg-white rounded-xl border border-slate-200 shadow-md p-6">
+                        <h3 className="font-semibold text-lg text-slate-800 mb-4 flex items-center">
+                          <MessageSquare size={18} className="mr-2 text-amber-500" />
+                          Discussion Topics
+                        </h3>
+                        <ul className="space-y-3">
+                          {[
+                            "Content Monetization Strategies",
+                            "Platform-Specific Opportunities",
+                            "Creating Digital Products",
+                            "Affiliate Marketing Implementation",
+                            "Subscription Models"
+                          ].map((topic, i) => (
+                            <li key={i} className="flex items-center gap-2 text-slate-700">
+                              <div className="w-2 h-2 rounded-full bg-amber-500"></div>
+                              {topic}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                      
+                      <div className="bg-white rounded-xl border border-slate-200 shadow-md p-6">
+                        <h3 className="font-semibold text-lg text-slate-800 mb-4 flex items-center">
+                          <FileText size={18} className="mr-2 text-amber-500" />
+                          Resources Included
+                        </h3>
+                        <ul className="space-y-3">
+                          {[
+                            { name: "Monetization Workbook", type: "PDF", size: "2.3 MB" },
+                            { name: "Creator Toolkit 2025", type: "ZIP", size: "14.7 MB" },
+                            { name: "Revenue Calculator", type: "XLSX", size: "512 KB" },
+                            { name: "Platform Comparison", type: "PDF", size: "1.8 MB" }
+                          ].map((resource, i) => (
+                            <li key={i} className="flex items-center justify-between text-slate-700 p-2 rounded-md hover:bg-slate-50 transition-colors">
+                              <div className="flex items-center gap-2">
+                                <div className="w-7 h-7 rounded bg-slate-100 flex items-center justify-center text-slate-500">
+                                  <FileText size={14} />
+                                </div>
+                                <span>{resource.name}</span>
+                              </div>
+                              <div className="flex items-center text-xs text-slate-500">
+                                <span className="bg-slate-100 px-2 py-0.5 rounded mr-2">{resource.type}</span>
+                                {resource.size}
+                              </div>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+                      <div>
+                        <h1 className="text-2xl font-bold text-slate-800 mb-1">Upcoming Webinars</h1>
+                        <p className="text-slate-500">Register for upcoming sessions or view your scheduled webinars</p>
+                      </div>
+                      <div className="relative">
+                        <div className="absolute -left-3 -top-3 w-12 h-12 bg-amber-300 rounded-full opacity-20 blur-lg"></div>
+                        <Button className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all relative">
+                          <Search size={16} className="mr-2" />
+                          Find Webinars
+                        </Button>
+                      </div>
+                    </div>
+                    
+                    {/* Next webinar highlight */}
+                    <div className="bg-white rounded-xl shadow-lg border border-slate-200 mb-10 overflow-hidden">
+                      <div className="bg-gradient-to-r from-amber-600 to-orange-600 h-2"></div>
+                      <div className="p-6 md:p-8">
+                        <div className="flex flex-col md:flex-row justify-between items-start gap-6 mb-6">
+                          <div className="md:max-w-xl">
+                            <div className="inline-block bg-amber-100 text-amber-800 text-xs font-semibold px-2.5 py-1 rounded-full mb-3">
+                              Featured Session
+                            </div>
+                            <h2 className="text-2xl font-bold mb-3 text-slate-800">{upcomingWebinars[0].title}</h2>
+                            <p className="text-slate-600 mb-5 leading-relaxed">{upcomingWebinars[0].description}</p>
+                            
+                            <div className="flex flex-wrap gap-5 mb-6">
+                              <div className="flex items-center text-slate-700">
+                                <Calendar size={18} className="mr-2 text-amber-500" />
+                                {upcomingWebinars[0].date}
+                              </div>
+                              <div className="flex items-center text-slate-700">
+                                <Clock size={18} className="mr-2 text-amber-500" />
+                                {upcomingWebinars[0].time}
+                              </div>
+                              <div className="flex items-center text-slate-700">
+                                <Users size={18} className="mr-2 text-amber-500" />
+                                {upcomingWebinars[0].registered} Registered
+                              </div>
+                            </div>
+                            
+                            <div className="flex flex-wrap items-center gap-4">
+                              <Button 
+                                className={registeredWebinars.includes(upcomingWebinars[0].id) 
+                                  ? "bg-green-600 hover:bg-green-700 shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all" 
+                                  : "bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all"
+                                }
+                                onClick={() => handleRegisterWebinar(upcomingWebinars[0].id)}
+                              >
+                                {registeredWebinars.includes(upcomingWebinars[0].id) ? (
+                                  <div className="flex items-center">
+                                    <div className="bg-white rounded-full w-5 h-5 flex items-center justify-center mr-2">
+                                      <Check size={12} className="text-green-600" />
+                                    </div>
+                                    You're Registered
+                                  </div>
+                                ) : "Join Webinar"}
+                              </Button>
+                              <Button 
+                                variant="outline" 
+                                className="border-slate-200 text-amber-600 hover:border-amber-200 hover:bg-amber-50 shadow-sm transition-all"
+                                onClick={() => handleAddToCalendar(upcomingWebinars[0])}
+                              >
+                                <CalendarDays size={16} className="mr-2" />
+                                Add to Calendar
+                              </Button>
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                className="text-slate-600 hover:text-amber-600 p-0 h-auto"
+                                onClick={() => handleViewWebinarDetails(upcomingWebinars[0])}
+                              >
+                                View details
+                                <ChevronRight size={16} className="ml-1" />
+                              </Button>
+                            </div>
+                          </div>
+                          
+                          <div className="bg-gradient-to-br from-amber-50 to-orange-50 p-5 rounded-xl border border-amber-100 shadow-inner min-w-[180px] sm:self-stretch flex flex-col justify-center">
+                            <div>
+                              <div className="text-xs text-amber-600 font-medium mb-1">Event starts in</div>
+                              <div className="text-3xl font-bold text-amber-800 mb-1">{upcomingWebinars[0].daysLeft}</div>
+                              <div className="text-sm text-amber-700 font-medium">days</div>
+                              <div className="mt-3 pt-3 border-t border-amber-200/50">
+                                <div className="text-sm text-amber-800 font-medium mb-1">Speakers</div>
+                                <div className="flex -space-x-2">
+                                  {upcomingWebinars[0].speakers.map((speaker, i) => (
+                                    <div key={i} className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center text-white font-medium text-xs border-2 border-white shadow-sm">
+                                      {speaker.split(' ').map(n => n[0]).join('')}
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Analytics and categories */}
+                    <div className="grid md:grid-cols-3 gap-6 mb-8">
+                      <div className="flex items-center gap-4 bg-white p-5 rounded-xl border border-slate-200 shadow-md">
+                        <div className="w-12 h-12 rounded-lg bg-amber-100 flex items-center justify-center text-amber-600">
+                          <BarChart3 size={22} />
+                        </div>
+                        <div>
+                          <div className="text-sm text-slate-500 mb-1">Total Sessions</div>
+                          <div className="text-2xl font-bold text-slate-800">24</div>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center gap-4 bg-white p-5 rounded-xl border border-slate-200 shadow-md">
+                        <div className="w-12 h-12 rounded-lg bg-green-100 flex items-center justify-center text-green-600">
+                          <Calendar size={22} />
+                        </div>
+                        <div>
+                          <div className="text-sm text-slate-500 mb-1">Your Webinars</div>
+                          <div className="text-2xl font-bold text-slate-800">{registeredWebinars.length}</div>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center gap-4 bg-white p-5 rounded-xl border border-slate-200 shadow-md">
+                        <div className="w-12 h-12 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600">
+                          <Clock size={22} />
+                        </div>
+                        <div>
+                          <div className="text-sm text-slate-500 mb-1">Hours of Content</div>
+                          <div className="text-2xl font-bold text-slate-800">37</div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Webinar categories */}
+                    <div className="mb-8">
+                      <div className="flex justify-between items-center mb-4">
+                        <h2 className="text-xl font-semibold text-slate-800">Categories</h2>
+                        <Button variant="ghost" size="sm" className="text-amber-600 hover:text-amber-700">
+                          View All
+                          <ChevronRight size={16} className="ml-1" />
+                        </Button>
+                      </div>
+                      
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        {[
+                          { name: "Content Creation", icon: <FileText size={20} />, color: "bg-green-100 text-green-600" },
+                          { name: "Monetization", icon: <DollarSign size={20} />, color: "bg-amber-100 text-amber-600" },
+                          { name: "Marketing", icon: <TrendingUp size={20} />, color: "bg-blue-100 text-blue-600" },
+                          { name: "Technology", icon: <Laptop size={20} />, color: "bg-purple-100 text-purple-600" }
+                        ].map((category, i) => (
+                          <div key={i} className="flex flex-col items-center bg-white p-5 rounded-xl border border-slate-200 shadow-md hover:shadow-lg hover:border-amber-200 transition-all cursor-pointer transform hover:-translate-y-1">
+                            <div className={`w-12 h-12 rounded-lg ${category.color} flex items-center justify-center mb-3`}>
+                              {category.icon}
+                            </div>
+                            <div className="text-sm font-medium text-slate-800">{category.name}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    {/* Other upcoming webinars */}
+                    <div className="mb-8">
+                      <h2 className="text-xl font-semibold text-slate-800 mb-4">Upcoming Sessions</h2>
+                      <div className="grid md:grid-cols-2 gap-6">
+                        {upcomingWebinars.slice(1).map((webinar) => (
+                          <div key={webinar.id} className="bg-white rounded-xl border border-slate-200 shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden group">
+                            <div className="p-6">
+                              <div className="flex justify-between items-start mb-3">
+                                <h3 className="font-semibold text-lg text-slate-800 group-hover:text-amber-600 transition-colors">
+                                  {webinar.title}
+                                </h3>
+                                {webinar.daysLeft <= 10 && (
+                                  <span className="bg-amber-100 text-amber-800 text-xs px-2 py-0.5 rounded-full font-medium">
+                                    {webinar.daysLeft === 0 ? "Today" : `${webinar.daysLeft} days left`}
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-slate-600 mb-4 line-clamp-2">{webinar.description}</p>
+                              
+                              <div className="flex flex-wrap gap-3 mb-5 text-sm">
+                                <div className="flex items-center text-slate-600">
+                                  <Calendar size={15} className="mr-1.5 text-amber-500" />
+                                  {webinar.date}
+                                </div>
+                                <div className="flex items-center text-slate-600">
+                                  <Clock size={15} className="mr-1.5 text-amber-500" />
+                                  {webinar.time}
+                                </div>
+                              </div>
+                              
+                              <div className="flex items-center justify-between">
+                                <div className="flex -space-x-2">
+                                  {webinar.speakers.map((speaker, i) => (
+                                    <div key={i} className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center text-white font-medium text-xs border-2 border-white shadow-sm" title={speaker}>
+                                      {speaker.split(' ').map(n => n[0]).join('')}
+                                    </div>
+                                  ))}
+                                  <div className="pl-3 flex items-center text-xs text-slate-500">
+                                    <Users size={14} className="mr-1" />
+                                    {webinar.registered}
+                                  </div>
+                                </div>
+                                
+                                <div className="flex items-center gap-2">
+                                  {registeredWebinars.includes(webinar.id) && (
+                                    <div className="py-1 px-2 bg-green-100 text-green-700 text-xs rounded-md font-medium flex items-center">
+                                      <Check size={12} className="mr-1" />
+                                      Registered
+                                    </div>
+                                  )}
+                                  <Button 
+                                    size="sm" 
+                                    variant="ghost" 
+                                    className="text-amber-600 hover:text-amber-700 p-0 h-auto"
+                                    onClick={() => handleViewWebinarDetails(webinar)}
+                                  >
+                                    Details
+                                    <ChevronRight size={16} className="ml-1 opacity-70" />
+                                  </Button>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl border border-amber-200 shadow-md p-6 md:p-8 flex flex-col md:flex-row justify-between items-center gap-6">
+                      <div>
+                        <h3 className="text-xl font-bold text-amber-800 mb-2">Want to suggest a topic?</h3>
+                        <p className="text-amber-700 mb-1">We're always looking for new session ideas.</p>
+                        <p className="text-sm text-amber-600">Submit your proposal and help shape our content calendar.</p>
+                      </div>
+                      <Button className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all whitespace-nowrap">
+                        Suggest a Webinar
+                      </Button>
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
+            
+            {/* Calendar Section */}
+            {activeSection === "calendar" && (
+              <div className="animate-fadeIn">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+                  <div>
+                    <h1 className="text-2xl font-bold text-slate-800 mb-1">My Calendar</h1>
+                    <p className="text-slate-500">View and manage your registered webinars</p>
+                  </div>
+                  <div className="flex items-center gap-2 bg-white rounded-lg shadow-sm p-1 border border-slate-200">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className={`border-transparent ${calendarView === "month" 
+                        ? "bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md" 
+                        : "text-slate-600 hover:text-amber-600 hover:bg-amber-50"}`}
+                      onClick={() => setCalendarView("month")}
+                    >
+                      <CalendarDays size={15} className="mr-1.5" />
+                      Month
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className={`border-transparent ${calendarView === "list" 
+                        ? "bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md" 
+                        : "text-slate-600 hover:text-amber-600 hover:bg-amber-50"}`}
+                      onClick={() => setCalendarView("list")}
+                    >
+                      <List size={15} className="mr-1.5" />
+                      List
+                    </Button>
+                  </div>
+                </div>
+                
+                {/* Placeholder for calendar content */}
+                <div className="bg-white rounded-xl p-10 border border-slate-200 shadow-md text-center">
+                  <div className="w-20 h-20 bg-gradient-to-br from-amber-100 to-orange-100 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
+                    <CalendarDays className="h-10 w-10 text-amber-500" />
+                  </div>
+                  <h2 className="text-xl font-bold text-slate-800 mb-3">My Calendar</h2>
+                  <p className="text-slate-600 mb-6 max-w-md mx-auto">
+                    Your calendar content will appear here.
+                  </p>
+                </div>
+              </div>
+            )}
+            
+            {/* Previous Webinars Section */}
+            {activeSection === "previousWebinars" && (
+              <div className="animate-fadeIn">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+                  <div>
+                    <h1 className="text-2xl font-bold text-slate-800 mb-1">Previous Webinars</h1>
+                    <p className="text-slate-500">Browse our library of past webinar recordings</p>
+                  </div>
+                  <div className="relative hidden md:flex items-center">
+                    <input 
+                      type="text" 
+                      placeholder="Search recordings..." 
+                      className="py-1.5 pl-9 pr-4 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent w-64 transition-all"
+                    />
+                    <Search size={16} className="absolute left-3 text-slate-400"/>
+                  </div>
+                </div>
+                
+                <div className="bg-white rounded-xl border border-slate-200 shadow-md overflow-hidden mb-8">
+                  <div className="p-4 border-b border-slate-200 flex justify-between items-center">
+                    <h2 className="text-lg font-semibold text-slate-800">Your Library</h2>
+                    <div className="text-sm flex items-center gap-2 text-slate-500">
+                      <span className="flex items-center">
+                        <div className="w-3 h-3 rounded-full bg-amber-500 mr-1.5"></div>
+                        New
+                      </span>
+                      <span className="flex items-center">
+                        <Star size={14} className="text-amber-500 mr-1" />
+                        Favorites
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <div className="divide-y divide-slate-100">
+                    {previousWebinars.map((webinar) => (
+                      <div key={webinar.id} className="p-5 hover:bg-slate-50 transition-all duration-200 cursor-pointer group">
+                        <div className="flex items-start gap-5">
+                          <div className="bg-gradient-to-br from-slate-200 to-slate-100 rounded-lg w-32 h-20 flex-shrink-0 flex items-center justify-center relative overflow-hidden">
+                            <FileText size={24} className="text-slate-400" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end justify-center pb-1">
+                              <span className="text-white text-xs font-medium">{webinar.duration}</span>
+                            </div>
+                          </div>
+                          
+                          <div className="flex-grow">
+                            <div className="flex justify-between">
+                              <h3 className="font-semibold text-slate-800 mb-1 group-hover:text-amber-600 transition-colors">
+                                {webinar.title}
+                              </h3>
+                              <button 
+                                className={`text-slate-400 ${webinar.favorite ? 'text-amber-500' : 'hover:text-amber-500'} transition-colors`}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleToggleFavorite(webinar.id);
+                                }}
+                              >
+                                <Star size={18} fill={webinar.favorite ? "currentColor" : "none"} />
+                              </button>
+                            </div>
+                            
+                            <p className="text-sm text-slate-600 mb-3">{webinar.description}</p>
+                            
+                            <div className="flex flex-wrap justify-between items-center">
+                              <div className="flex flex-wrap gap-4 text-xs text-slate-500">
+                                <span className="flex items-center">
+                                  <Calendar size={14} className="mr-1.5 text-amber-500" />
+                                  {webinar.date}
+                                </span>
+                                <span className="flex items-center">
+                                  <Users size={14} className="mr-1.5 text-amber-500" />
+                                  {webinar.views} views
+                                </span>
+                                <div className="flex items-center gap-1">
+                                  {webinar.speakers.map((speaker, i) => (
+                                    <div key={i} className="w-6 h-6 rounded-full bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center text-white font-medium text-xs border-2 border-white shadow-sm" title={speaker}>
+                                      {speaker.split(' ').map(n => n[0]).join('')}
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                              
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                className="border-slate-200 text-slate-600 hover:text-amber-600 hover:border-amber-200 shadow-sm transition-all"
+                                onClick={() => handleViewPreviousWebinar(webinar.id)}
+                              >
+                                Watch Replay
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                
+                <div className="grid md:grid-cols-2 gap-6 mb-8">
+                  <div className="bg-white rounded-xl p-6 border border-slate-200 shadow-md">
+                    <h3 className="font-semibold text-lg text-slate-800 mb-4 flex items-center">
+                      <BarChart3 size={18} className="mr-2 text-amber-500" />
+                      Viewing Statistics
+                    </h3>
+                    <div className="grid grid-cols-2 gap-4 mb-4">
+                      <div className="bg-gradient-to-br from-slate-50 to-slate-100 p-4 rounded-lg border border-slate-200">
+                        <h4 className="text-slate-500 text-sm mb-1">Total Watched</h4>
+                        <p className="text-2xl font-bold text-slate-800">14</p>
+                        <div className="mt-2 text-xs text-green-600 flex items-center">
+                          <TrendingUp size={14} className="mr-1" />
+                          <span>35% of available content</span>
+                        </div>
+                      </div>
+                      <div className="bg-gradient-to-br from-slate-50 to-slate-100 p-4 rounded-lg border border-slate-200">
+                        <h4 className="text-slate-500 text-sm mb-1">Watch Time</h4>
+                        <p className="text-2xl font-bold text-slate-800">12.5 hrs</p>
+                        <div className="h-1.5 bg-slate-200 rounded-full mt-2 w-full overflow-hidden">
+                          <div className="h-full bg-amber-500 rounded-full w-[65%]"></div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="bg-gradient-to-br from-amber-50 to-orange-50 p-4 rounded-lg border border-amber-100">
+                      <p className="text-amber-800 font-medium">Your Learning Focus</p>
+                      <div className="flex gap-2 mt-2 flex-wrap">
+                        <span className="bg-white px-2 py-1 rounded-full text-xs font-medium text-amber-700">Content Creation</span>
+                        <span className="bg-white px-2 py-1 rounded-full text-xs font-medium text-amber-700">Monetization</span>
+                        <span className="bg-white px-2 py-1 rounded-full text-xs font-medium text-amber-700">Platform Growth</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-white rounded-xl p-6 border border-slate-200 shadow-md">
+                    <h3 className="font-semibold text-lg text-slate-800 mb-4 flex items-center">
+                      <MessageSquare size={18} className="mr-2 text-amber-500" />
+                      Recommended For You
+                    </h3>
+                    <div className="space-y-4">
+                      {[
+                        { title: "Building a Consistent Brand Identity", category: "Branding" },
+                        { title: "Advanced Audience Growth Strategies", category: "Marketing" },
+                        { title: "Diversifying Revenue Streams", category: "Monetization" }
+                      ].map((item, i) => (
+                        <div key={i} className="flex justify-between items-center p-3 border border-slate-200 rounded-lg hover:border-amber-200 hover:bg-amber-50/30 transition-colors cursor-pointer">
+                          <div>
+                            <h4 className="font-medium text-slate-800">{item.title}</h4>
+                            <span className="text-xs text-slate-500">{item.category}</span>
+                          </div>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="text-amber-600 hover:text-amber-700 h-auto p-0"
+                          >
+                            View
+                            <ChevronRight size={16} className="ml-1 opacity-70" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+            
+            {/* People Section */}
+            {activeSection === "people" && (
+              <div className="animate-fadeIn">
+                <div className="flex flex-col md:flex-row justify-between items-start gap-4 mb-8">
+                  <div>
+                    <h1 className="text-2xl font-bold text-slate-800 mb-1">People</h1>
+                    <p className="text-slate-500">Connect with other creators in your niche</p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" size={16} />
+                      <input 
+                        type="text" 
+                        placeholder="Search creators..." 
+                        className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/25 focus:border-amber-500"
+                        value={discoveryFilter.search}
+                        onChange={(e) => setDiscoveryFilter({...discoveryFilter, search: e.target.value})}
+                      />
+                    </div>
+                  </div>
+                </div>
+                
+                {showUserProfile && selectedUser ? (
+                  <div>
+                    {/* User profile detail view */}
+                    <div className="mb-6">
+                      <button 
+                        onClick={handleCloseProfile} 
+                        className="flex items-center gap-1 text-sm text-slate-600 hover:text-amber-600 mb-4"
+                      >
+                        <ChevronLeft size={16} />
+                        Back to people
+                      </button>
+                      
+                      <div className="bg-white rounded-xl border border-slate-200 shadow-md overflow-hidden">
+                        {/* Profile header */}
+                        <div className="h-40 bg-gradient-to-r from-amber-500/20 to-orange-500/20 relative">
+                          <div className="absolute -bottom-12 left-6">
+                            <div className="h-24 w-24 bg-white rounded-xl ring-4 ring-white shadow-md flex items-center justify-center text-slate-700 font-bold text-3xl">
+                              {selectedUser.avatar ? (
+                                <img src={selectedUser.avatar} alt={selectedUser.name} className="w-full h-full object-cover rounded-xl" />
+                              ) : (
+                                selectedUser.name.split(' ').map(n => n[0]).join('')
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div className="pt-16 pb-6 px-6">
+                          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                            <div>
+                              <h2 className="text-2xl font-bold text-slate-800">{selectedUser.name}</h2>
+                              <p className="text-slate-500 flex items-center gap-2">
+                                <span className="font-medium text-amber-600">{selectedUser.role}</span>
+                                {selectedUser.location && (
+                                  <>
+                                    <span>•</span>
+                                    <span>{selectedUser.location}</span>
+                                  </>
+                                )}
+                                {selectedUser.online && (
+                                  <>
+                                    <span>•</span>
+                                    <span className="flex items-center gap-1 text-green-600">
+                                      <span className="h-2 w-2 bg-green-500 rounded-full"></span>
+                                      Online
+                                    </span>
+                                  </>
+                                )}
+                              </p>
+                            </div>
+                            <div className="flex-shrink-0">
+                              {selectedUser.connected ? (
+                                <Button 
+                                  variant="outline" 
+                                  className="border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300"
+                                  onClick={() => handleRemoveFriend(selectedUser.id)}
+                                >
+                                  Remove Connection
+                                </Button>
+                              ) : selectedUser.pending ? (
+                                <Button variant="outline" disabled>
+                                  Request Pending
+                                </Button>
+                              ) : (
+                                <Button 
+                                  className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 shadow-md"
+                                  onClick={() => handleConnect(selectedUser)}
+                                >
+                                  Connect
+                                </Button>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex flex-col md:flex-row justify-between items-start gap-4 mb-8">
+                    <div>
+                      <h1 className="text-2xl font-bold text-slate-800 mb-1">People</h1>
+                      <p className="text-slate-500">Connect with other creators in your niche</p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="relative">
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" size={16} />
+                        <input 
+                          type="text" 
+                          placeholder="Search creators..." 
+                          className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/25 focus:border-amber-500"
+                          value={discoveryFilter.search}
+                          onChange={(e) => setDiscoveryFilter({...discoveryFilter, search: e.target.value})}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </main>
+      </div>
+    </div>
+  );
+} 
