@@ -7,7 +7,7 @@ import { showToast } from './ToastNotification';
 export default function ButtonFixer() {
   useEffect(() => {
     function enhanceButtons() {
-      console.log('Enhancing clickable elements...');
+      // console.log('Enhancing clickable elements...'); // Removed spam
       
       const clickableElements = document.querySelectorAll('button, a, [role="button"], .btn, [class*="button"]');
       
@@ -77,8 +77,8 @@ export default function ButtonFixer() {
     // Run immediately
     enhanceButtons();
     
-    // Run periodically to catch any new elements
-    const interval = setInterval(enhanceButtons, 2000);
+    // Run periodically to catch any new elements (less frequent)
+    const interval = setInterval(enhanceButtons, 10000); // Changed from 2000 to 10000
     
     // Use MutationObserver to watch for DOM changes
     const observer = new MutationObserver((mutations) => {
