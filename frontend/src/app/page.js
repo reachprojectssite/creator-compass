@@ -1175,7 +1175,7 @@ export default function Home() {
                       <Star className="h-7 w-7" />
                     </div>
                     <h3 className="text-2xl font-bold">
-                      <a href="https://reachnationals.com" target="_blank" rel="noopener noreferrer" className="hover:text-amber-600 transition-colors">
+                      <a href="https://reachnationals.org/" target="_blank" rel="noopener noreferrer" className="hover:text-amber-600 transition-colors">
                         REACH Nationals
                       </a>
                     </h3>
