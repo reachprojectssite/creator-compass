@@ -1,4 +1,5 @@
 "use client";
+// Quick demo edit - showing file editing capability!
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
@@ -11,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
+import { AuthService } from "@/lib/auth";
 
 export default function Home() {
   // State for popups
@@ -21,13 +23,16 @@ export default function Home() {
   
   // State for inline registration form
   const [inlineFormPhase, setInlineFormPhase] = useState(1);
+  const [inlinePasswordError, setInlinePasswordError] = useState('');
   const [inlineRegistrationData, setInlineRegistrationData] = useState({
     name: '',
     email: '',
     interests: 'all',
     password: '',
     confirmPassword: '',
-    organization: '' // Added organization field with default value
+    organization: '', // Added organization field with default value
+    consent_events: false,
+    consent_newsletter: false
   });
 
   // State for Contact Form
@@ -54,12 +59,40 @@ export default function Home() {
   };
 
   // Handle inline form phase 2 (complete registration)
-  const handleInlinePhase2Submit = (e) => {
+  const handleInlinePhase2Submit = async (e) => {
     e.preventDefault();
-    // Here you would typically send the registration data to your backend
-    console.log("Registration data:", inlineRegistrationData);
-    // Move to thank you phase
-    setInlineFormPhase(3);
+    
+    // Clear any previous errors
+    setInlinePasswordError('');
+    
+    // Validate passwords match
+    if (inlineRegistrationData.password !== inlineRegistrationData.confirmPassword) {
+      setInlinePasswordError('Passwords do not match');
+      return;
+    }
+    
+    try {
+      // Register user with authentication service
+      const result = await AuthService.registerUser({
+        email: inlineRegistrationData.email,
+        full_name: inlineRegistrationData.name,
+        password: inlineRegistrationData.password,
+        university: inlineRegistrationData.organization,
+        interests: inlineRegistrationData.interests,
+        consent_events: inlineRegistrationData.consent_events,
+        consent_newsletter: inlineRegistrationData.consent_newsletter
+      });
+      
+      if (result.success) {
+        console.log("User registered successfully:", result.user);
+        setInlineFormPhase(3);
+      } else {
+        setInlinePasswordError('Registration failed: ' + result.error);
+      }
+    } catch (error) {
+      console.error('Registration error:', error);
+      setInlinePasswordError('Registration failed. Please try again.');
+    }
   };
 
   // Handle contact form input changes
@@ -157,11 +190,7 @@ export default function Home() {
     { value: "300M+", label: "Combined Following" }
   ];
   
-  const shineStats = [
-    { value: "250+", label: "Creators" },
-    { value: "4", label: "Global Offices" }, 
-    { value: "100+", label: "Major Clients" }
-  ];
+  
 
   // Why join reasons
   const whyJoinReasons = [
@@ -303,13 +332,16 @@ export default function Home() {
   function JoinWebinarPopup() {
     // Phase state to track registration progress (1: initial form, 2: password creation, 3: thank you)
     const [phase, setPhase] = useState(1);
+    const [passwordError, setPasswordError] = useState('');
     const [registrationData, setRegistrationData] = useState({
       name: '',
       email: '',
       organization: '',
       interests: 'all',
       password: '',
-      confirmPassword: ''
+      confirmPassword: '',
+      consent_events: false,
+      consent_newsletter: false
     });
 
     // Handle form input changes
@@ -328,12 +360,40 @@ export default function Home() {
     };
 
     // Handle form submission for phase 2 (complete registration)
-    const handlePhase2Submit = (e) => {
+    const handlePhase2Submit = async (e) => {
       e.preventDefault();
-      // Here you would typically send the registration data to your backend
-      console.log("Registration data:", registrationData);
-      // Move to thank you screen
-      setPhase(3);
+      
+      // Clear any previous errors
+      setPasswordError('');
+      
+      // Validate passwords match
+      if (registrationData.password !== registrationData.confirmPassword) {
+        setPasswordError('Passwords do not match');
+        return;
+      }
+      
+      try {
+        // Register user with authentication service
+        const result = await AuthService.registerUser({
+          email: registrationData.email,
+          full_name: registrationData.name,
+          password: registrationData.password,
+          university: registrationData.organization,
+          interests: registrationData.interests,
+          consent_events: registrationData.consent_events,
+          consent_newsletter: registrationData.consent_newsletter
+        });
+        
+        if (result.success) {
+          console.log("User registered successfully:", result.user);
+          setPhase(3);
+        } else {
+          setPasswordError('Registration failed: ' + result.error);
+        }
+      } catch (error) {
+        console.error('Registration error:', error);
+        setPasswordError('Registration failed. Please try again.');
+      }
     };
 
     // Close popup after a delay when in thank you screen
@@ -440,16 +500,36 @@ export default function Home() {
                 <div className="flex items-start">
                   <div className="flex items-center h-5">
                     <input
-                      id="terms"
-                      name="terms"
+                      id="consent_events"
+                      name="consent_events"
                       type="checkbox"
                       className="h-4 w-4 rounded border-gray-300 text-amber-600 focus:ring-amber-500"
                       required
+                      checked={registrationData.consent_events}
+                      onChange={(e) => setRegistrationData(prev => ({ ...prev, consent_events: e.target.checked }))}
                     />
                   </div>
                   <div className="ml-3 text-sm">
-                    <label htmlFor="terms" className="font-medium text-gray-700">
-                      I agree to receive email updates about upcoming webinars
+                    <label htmlFor="consent_events" className="font-medium text-gray-700">
+                      I consent to receiving email updates about upcoming events and webinars
+                    </label>
+                  </div>
+                </div>
+                
+                <div className="flex items-start">
+                  <div className="flex items-center h-5">
+                    <input
+                      id="consent_newsletter"
+                      name="consent_newsletter"
+                      type="checkbox"
+                      className="h-4 w-4 rounded border-gray-300 text-amber-600 focus:ring-amber-500"
+                      checked={registrationData.consent_newsletter}
+                      onChange={(e) => setRegistrationData(prev => ({ ...prev, consent_newsletter: e.target.checked }))}
+                    />
+                  </div>
+                  <div className="ml-3 text-sm">
+                    <label htmlFor="consent_newsletter" className="font-medium text-gray-700">
+                      I consent to receiving newsletters and resources for creators delivered to my inbox
                     </label>
                   </div>
                 </div>
@@ -497,6 +577,12 @@ export default function Home() {
                   />
                 </div>
                 
+                {passwordError && (
+                  <div className="text-red-600 text-sm bg-red-50 border border-red-200 rounded-md p-3">
+                    {passwordError}
+                  </div>
+                )}
+                
                 <div className="pt-2">
                   <Button type="submit" className="w-full bg-amber-500 hover:bg-amber-600">
                     Complete Registration
@@ -525,25 +611,25 @@ export default function Home() {
               <h2 className="text-2xl font-bold mb-4">Thank You for Registering!</h2>
               
               <p className="text-gray-600 mb-6">
-                We've sent a confirmation email to <span className="font-medium">{registrationData.email}</span> with all the details you need to get started.
+                Welcome to Creator Webinars! Your account has been created successfully.
               </p>
               
               <div className="space-y-4">
                 <p className="text-sm text-gray-500">
-                  Please check your inbox (and spam folder) for the email. If you don't receive it within 5 minutes, please contact us.
+                  You can now log in with your email and password to access your dashboard and join upcoming webinars.
                 </p>
                 
                 <div className="pt-4 border-t border-gray-100">
                   <p className="text-sm text-gray-600 mb-4">
                     <Calendar className="h-4 w-4 inline-block mr-1 text-amber-500" />
-                    Your first session starts on February 19, 2025.
+                    Check our upcoming sessions page for the latest webinar schedule.
                   </p>
                   
                   <div className="mb-6">
                     <p className="text-sm font-medium text-gray-700 mb-3">Add to your calendar:</p>
                     <div className="flex flex-wrap justify-center gap-2">
                       <a 
-                        href="https://calendar.google.com/calendar/render?action=TEMPLATE&text=Creator%20Webinars%20Session%201&dates=20250219T170000Z/20250219T180000Z&details=Join%20us%20for%20the%20first%20session%20of%20our%20Creator%20Webinars%20series.%20Topic:%20In%20Front%20of%20or%20Behind%20the%20Camera:%20Exploring%20Career%20Paths&location=Online" 
+                        href="#" 
                         target="_blank" 
                         rel="noopener noreferrer"
                         className="inline-flex items-center px-3 py-1.5 bg-white border border-gray-200 rounded-md text-sm text-gray-700 hover:bg-gray-50"
@@ -553,10 +639,10 @@ export default function Home() {
                           <path d="M6.10352e-05 10.7775H24.0001V8.7775H6.10352e-05V10.7775Z" fill="currentColor" />
                           <path d="M12 16.5C13.6569 16.5 15 15.1569 15 13.5C15 11.8431 13.6569 10.5 12 10.5C10.3431 10.5 9 11.8431 9 13.5C9 15.1569 10.3431 16.5 12 16.5Z" fill="currentColor" />
                         </svg>
-                        Google Calendar
+                        Calendar (Coming Soon)
                       </a>
                       <a 
-                        href="data:text/calendar;charset=utf8,BEGIN:VCALENDAR%0AVERSION:2.0%0ABEGIN:VEVENT%0ADTSTART:20250219T170000Z%0ADTEND:20250219T180000Z%0ASUMMARY:Creator%20Webinars%20Session%201%0ADESCRIPTION:Join%20us%20for%20the%20first%20session%20of%20our%20Creator%20Webinars%20series.%20Topic:%20In%20Front%20of%20or%20Behind%20the%20Camera:%20Exploring%20Career%20Paths%0ALOCATION:Online%0AEND:VEVENT%0AEND:VCALENDAR" 
+                        href="#" 
                         download="creator-webinars-session1.ics"
                         className="inline-flex items-center px-3 py-1.5 bg-white border border-gray-200 rounded-md text-sm text-gray-700 hover:bg-gray-50"
                       >
@@ -566,7 +652,7 @@ export default function Home() {
                           <path d="M8 2V6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                           <path d="M3 10H21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                         </svg>
-                        Apple Calendar
+                        Calendar (Coming Soon)
                       </a>
                     </div>
                   </div>
@@ -653,15 +739,14 @@ export default function Home() {
           )}
           
           <div className="flex flex-col sm:flex-row gap-3 mt-4">
-            <Button 
-              className="bg-amber-500 hover:bg-amber-600 flex-1" 
-              onClick={() => {
-                setSelectedSession(null);
-                setShowJoinPopup(true);
-              }}
-            >
-              Register for this Session
-            </Button>
+            <Link href="/signup">
+              <Button 
+                className="bg-amber-500 hover:bg-amber-600 flex-1" 
+                onClick={() => setSelectedSession(null)}
+              >
+                Sign Up
+              </Button>
+            </Link>
             <Button 
               variant="outline" 
               className="border-amber-500 text-amber-600 hover:bg-amber-50"
@@ -675,7 +760,7 @@ export default function Home() {
             <p className="text-sm font-medium text-gray-700 mb-3">Add this session to your calendar:</p>
             <div className="flex flex-wrap gap-2">
               <a 
-                href={`https://calendar.google.com/calendar/render?action=TEMPLATE&text=Creator%20Webinars:%20${encodeURIComponent(session.title)}&dates=20250219T170000Z/20250219T180000Z&details=${encodeURIComponent(`Join us for the Creator Webinars session on: ${session.title}. ${session.description}`)}&location=Online`}
+                href="#"
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="inline-flex items-center px-3 py-1.5 bg-white border border-amber-200 rounded-md text-sm text-gray-700 hover:bg-amber-50"
@@ -685,10 +770,10 @@ export default function Home() {
                   <path d="M6.10352e-05 10.7775H24.0001V8.7775H6.10352e-05V10.7775Z" fill="currentColor" />
                   <path d="M12 16.5C13.6569 16.5 15 15.1569 15 13.5C15 11.8431 13.6569 10.5 12 10.5C10.3431 10.5 9 11.8431 9 13.5C9 15.1569 10.3431 16.5 12 16.5Z" fill="currentColor" />
                 </svg>
-                Google Calendar
+                Calendar (Coming Soon)
               </a>
               <a 
-                href={`data:text/calendar;charset=utf8,BEGIN:VCALENDAR%0AVERSION:2.0%0ABEGIN:VEVENT%0ADTSTART:20250219T170000Z%0ADTEND:20250219T180000Z%0ASUMMARY:Creator%20Webinars:%20${encodeURIComponent(session.title)}%0ADESCRIPTION:${encodeURIComponent(`Join us for the Creator Webinars session on: ${session.title}. ${session.description}`)}%0ALOCATION:Online%0AEND:VEVENT%0AEND:VCALENDAR`}
+                href="#"
                 download={`creator-webinars-${session.id}.ics`}
                 className="inline-flex items-center px-3 py-1.5 bg-white border border-amber-200 rounded-md text-sm text-gray-700 hover:bg-amber-50"
               >
@@ -698,7 +783,7 @@ export default function Home() {
                   <path d="M8 2V6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   <path d="M3 10H21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
-                Apple Calendar
+                Calendar (Coming Soon)
               </a>
             </div>
           </div>
@@ -709,13 +794,13 @@ export default function Home() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      {/* Header */}
-      <header className="bg-white py-3 border-b border-gray-200 sticky top-0 z-10">
+              {/* Header */}
+        <header className="bg-white py-3 border-b border-gray-200 sticky top-0 z-50">
         <div className="container mx-auto px-4 flex justify-between items-center">
           <div className="flex items-center">
-            <Link href="/" className="font-bold text-base sm:text-lg md:text-xl text-slate-800 whitespace-nowrap">
-              Creator Webinars
-            </Link>
+                         <Link href="/" className="font-bold text-base sm:text-lg md:text-xl text-slate-800 whitespace-nowrap">
+               Creator Webinars <span className="text-xs font-normal text-slate-500 ml-1">Version Beta</span>
+             </Link>
           </div>
           
           <div className="hidden md:flex items-center justify-center flex-1">
@@ -731,9 +816,11 @@ export default function Home() {
             <Link href="/login" className="text-sm lg:text-base text-slate-600 hover:text-amber-500 px-2 lg:px-3 py-2">
               Login
             </Link>
-            <Button className="text-xs lg:text-sm bg-orange-500 hover:bg-orange-600" onClick={() => setShowJoinPopup(true)}>
-              Join the Webinars
-            </Button>
+            <Link href="/signup">
+              <Button className="text-xs lg:text-sm bg-orange-500 hover:bg-orange-600">
+                Sign Up
+              </Button>
+            </Link>
           </div>
           
           <button
@@ -777,15 +864,14 @@ export default function Home() {
                 FAQ
               </a>
               <div className="pt-2 mt-2 border-t border-gray-100">
-                <Button 
-                  className="w-full bg-orange-500 hover:bg-orange-600 text-white"
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    setShowJoinPopup(true);
-                  }}
-                >
-                  Join the Webinars
-                </Button>
+                <Link href="/signup">
+                  <Button 
+                    className="w-full bg-orange-500 hover:bg-orange-600 text-white"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Sign Up
+                  </Button>
+                </Link>
               </div>
             </nav>
           </div>
@@ -821,9 +907,11 @@ export default function Home() {
                   </p>
                   
                   <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center md:justify-start">
-                    <Button size="lg" className="text-sm sm:text-base md:text-lg px-4 sm:px-6 md:px-8 py-3 sm:py-4 md:py-6 bg-amber-500 hover:bg-amber-600" onClick={() => setShowJoinPopup(true)}>
-                      Join our webinars
-                    </Button>
+                    <Link href="/signup">
+                      <Button size="lg" className="text-sm sm:text-base md:text-lg px-4 sm:px-6 md:px-8 py-3 sm:py-4 md:py-6 bg-amber-500 hover:bg-amber-600">
+                        Sign Up
+                      </Button>
+                    </Link>
                     <Button size="lg" variant="outline" className="text-sm sm:text-base md:text-lg px-4 sm:px-6 md:px-8 py-3 sm:py-4 md:py-6 border-slate-300 text-slate-700 hover:bg-slate-100">
                       <Play className="mr-2 h-3 w-3 sm:h-4 sm:w-4" /> Watch our last webinar
                     </Button>
@@ -884,10 +972,9 @@ export default function Home() {
             {/* Partners section */}
             <div className="mt-8 sm:mt-10 md:mt-12 text-center">
               <p className="text-xs md:text-sm uppercase tracking-wider text-slate-500 mb-2 sm:mb-3 md:mb-4">In collaboration with</p>
-              <div className="flex flex-wrap justify-center items-center gap-4 sm:gap-6 md:gap-16">
-                <a href="https://reachnatl.com/" target="_blank" rel="noopener noreferrer" className="text-base sm:text-lg md:text-xl font-bold text-slate-700 hover:text-slate-700">REACH Nationals</a>
-                <a href="https://www.shinetalentgroup.com/" target="_blank" rel="noopener noreferrer" className="text-base sm:text-lg md:text-xl font-bold text-slate-700 hover:text-slate-700">Shine Talent Group</a>
-              </div>
+                             <div className="flex flex-wrap justify-center items-center gap-4 sm:gap-6 md:gap-16">
+                 <a href="https://reachnatl.com/" target="_blank" rel="noopener noreferrer" className="text-base sm:text-lg md:text-xl font-bold text-slate-700 hover:text-slate-700">REACH Nationals</a>
+               </div>
             </div>
           </div>
         </section>
@@ -1036,11 +1123,13 @@ export default function Home() {
                   <div className="mt-6 md:mt-8 pt-4 md:pt-6 border-t border-amber-100 flex items-center justify-between">
                     <div>
                       <div className="text-xs md:text-sm text-slate-500">Next Session</div>
-                      <div className="text-sm md:text-base font-medium text-slate-700">February 19, 2025</div>
+                      <div className="text-sm md:text-base font-medium text-slate-700">Coming Soon</div>
                     </div>
-                    <Button className="text-xs md:text-sm px-3 py-1 md:px-4 md:py-2 bg-amber-500 hover:bg-amber-600 text-white" onClick={() => setShowJoinPopup(true)}>
-                      Reserve Your Spot
-                    </Button>
+                    <Link href="/signup">
+                      <Button className="text-xs md:text-sm px-3 py-1 md:px-4 md:py-2 bg-amber-500 hover:bg-amber-600 text-white">
+                        Sign Up
+                      </Button>
+                    </Link>
                   </div>
                 </div>
               </div>
@@ -1212,56 +1301,7 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* Shine Talent Group - more authentic presentation */}
-              <div className="bg-white rounded-xl overflow-hidden">
-                <div className="aspect-video relative overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-br from-orange-200 to-amber-50 flex items-center justify-center">
-                    <div className="text-orange-400 text-lg">Shine Team Photo</div>
-                  </div>
-                </div>
-                
-                <div className="p-8">
-                  <div className="flex items-center gap-4 mb-4">
-                    <div className="w-14 h-14 rounded-xl bg-orange-100 flex items-center justify-center text-orange-600">
-                      <Award className="h-7 w-7" />
-                    </div>
-                    <h3 className="text-2xl font-bold">
-                      <a href="https://shinetalent.com" target="_blank" rel="noopener noreferrer" className="hover:text-orange-600 transition-colors">
-                        Shine Talent Group
-                      </a>
-                    </h3>
-                  </div>
-                  
-                  <p className="text-slate-600 mb-6">
-                    We're creators at heart who've built a global talent collective supporting 250+ unique voices with the resources, connections, and guidance to thrive.
-                  </p>
-                  
-                  <div className="mb-6">
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className="h-1 w-1 rounded-full bg-orange-500"></div>
-                      <span className="text-slate-800 font-medium">4 global creator hubs</span>
-                    </div>
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className="h-1 w-1 rounded-full bg-orange-500"></div>
-                      <span className="text-slate-800 font-medium">Creator-led approach</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="h-1 w-1 rounded-full bg-orange-500"></div>
-                      <span className="text-slate-800 font-medium">Authentic brand partnerships</span>
-                    </div>
-                  </div>
-                  
-                  <div className="flex gap-4 items-center">
-                    <div className="w-12 h-12 rounded-full overflow-hidden bg-orange-100 flex items-center justify-center">
-                      <div className="text-orange-500 text-xs">JH</div>
-                    </div>
-                    <div>
-                      <p className="font-medium">Jess Hunichen</p>
-                      <p className="text-sm text-slate-500">Shine Co-founder</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
+
             </div>
             
             {/* Testimonial/Quote row */}
@@ -1343,9 +1383,11 @@ export default function Home() {
                         We'd love to hear from you! Reach out to our team directly and we'll get back to you as soon as possible.
                       </p>
                       <div className="flex justify-center md:justify-start">
-                        <Button className="text-sm md:text-base bg-amber-500 hover:bg-amber-600" onClick={() => setShowContactPopup(true)}>
-                          Contact us
-                        </Button>
+                        <Link href="/signup">
+                          <Button className="text-sm md:text-base bg-amber-500 hover:bg-amber-600">
+                            Sign Up
+                          </Button>
+                        </Link>
                       </div>
                     </div>
                   </div>
@@ -1433,198 +1475,23 @@ export default function Home() {
                 
                 <div>
                   <div className="bg-white rounded-xl shadow-md p-8 relative">
-                    <h3 className="text-2xl font-bold mb-6 text-slate-800">Join our webinars</h3>
+                    <h3 className="text-2xl font-bold mb-6 text-slate-800">Sign Up</h3>
                     
-                    {inlineFormPhase === 1 && (
-                      <form onSubmit={handleInlinePhase1Submit} className="space-y-5">
-                        <div>
-                          <label className="block text-sm font-medium mb-2 text-slate-700">Your name</label>
-                          <div className="relative">
-                            <Input 
-                              type="text" 
-                              name="name"
-                              value={inlineRegistrationData.name}
-                              onChange={handleInlineInputChange}
-                              placeholder="Name" 
-                              className="pl-10 py-2 border-slate-200 focus:border-amber-500 focus:ring-amber-500 rounded-lg"
-                              required
-                            />
-                            <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-400" />
-                          </div>
-                        </div>
-                        
-                        <div>
-                          <label className="block text-sm font-medium mb-2 text-slate-700">Email address</label>
-                          <div className="relative">
-                            <Input 
-                              type="email" 
-                              name="email"
-                              value={inlineRegistrationData.email}
-                              onChange={handleInlineInputChange}
-                              placeholder="Email" 
-                              className="pl-10 py-2 border-slate-200 focus:border-amber-500 focus:ring-amber-500 rounded-lg"
-                              required
-                            />
-                            <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-400" />
-                          </div>
-                        </div>
-                        
-                        <div>
-                          <label className="block text-sm font-medium mb-2 text-slate-700">Which sessions interest you?</label>
-                          <select 
-                            name="interests"
-                            value={inlineRegistrationData.interests}
-                            onChange={handleInlineInputChange}
-                            className="w-full rounded-lg border-slate-200 focus:border-amber-500 focus:ring-amber-500 py-2"
-                          >
-                            <option value="all">All sessions</option>
-                            <option value="1">Session 1: Career Paths</option>
-                            <option value="2">Session 2: Management</option>
-                            <option value="3">Session 3: Brand Pitches</option>
-                            <option value="4">Session 4: Revenue Streams</option>
-                          </select>
-                        </div>
-                        
-                        <div className="flex items-start">
-                          <div className="flex items-center h-5">
-                            <input
-                              id="inline-terms"
-                              name="terms"
-                              type="checkbox"
-                              className="h-4 w-4 rounded border-gray-300 text-amber-600 focus:ring-amber-500"
-                              required
-                            />
-                          </div>
-                          <div className="ml-3 text-sm">
-                            <label htmlFor="inline-terms" className="font-medium text-slate-700">
-                              I agree to receive email updates about upcoming webinars
-                            </label>
-                          </div>
-                        </div>
-                        
-                        <Button type="submit" className="w-full py-2 bg-amber-500 hover:bg-amber-600">
-                          Continue
+                    {/* Signup form - redirect to dedicated signup page */}
+                    <div className="text-center">
+                      <p className="text-slate-600 mb-6">
+                        Ready to join our community? Create your account to get started.
+                      </p>
+                      <Link href="/signup">
+                        <Button className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-medium py-3 px-6 rounded-lg transition-all duration-300">
+                          Create Account
                         </Button>
-                        
-                        <p className="text-center text-xs text-slate-500">
-                          By joining, you'll receive updates about our sessions and webinars. No spam, ever.
-                        </p>
-                      </form>
-                    )}
-                    
-                    {inlineFormPhase === 2 && (
-                      <form onSubmit={handleInlinePhase2Submit} className="space-y-5">
-                        <div>
-                          <label className="block text-sm font-medium mb-2 text-slate-700">Create Password</label>
-                          <div className="relative">
-                            <Input 
-                              type="password" 
-                              name="password"
-                              value={inlineRegistrationData.password}
-                              onChange={handleInlineInputChange}
-                              className="w-full py-2 border-slate-200 focus:border-amber-500 focus:ring-amber-500 rounded-lg"
-                              minLength="8"
-                              required
-                            />
-                            <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-xs text-slate-500">min 8 chars</div>
-                          </div>
-                        </div>
-                        
-                        <div>
-                          <label className="block text-sm font-medium mb-2 text-slate-700">Confirm Password</label>
-                          <Input 
-                            type="password" 
-                            name="confirmPassword"
-                            value={inlineRegistrationData.confirmPassword}
-                            onChange={handleInlineInputChange}
-                            className="w-full py-2 border-slate-200 focus:border-amber-500 focus:ring-amber-500 rounded-lg"
-                            required
-                          />
-                        </div>
-                        
-                        <Button type="submit" className="w-full py-2 bg-amber-500 hover:bg-amber-600">
-                          Complete Registration
-                        </Button>
-                        
-                        <div className="text-center">
-                          <button 
-                            type="button" 
-                            className="text-sm text-amber-600 hover:text-amber-700"
-                            onClick={() => setInlineFormPhase(1)}
-                          >
-                            Back to previous step
-                          </button>
-                        </div>
-                      </form>
-                    )}
-                    
-                    {inlineFormPhase === 3 && (
-                      <div className="text-center py-4">
-                        <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                          <Check className="h-8 w-8 text-green-600" />
-                        </div>
-                        
-                        <h3 className="text-xl font-bold mb-4">Thank You for Registering!</h3>
-                        
-                        <p className="text-slate-600 mb-6">
-                          We've sent a confirmation email to <span className="font-medium">{inlineRegistrationData.email}</span> with all the details.
-                        </p>
-                        
-                        <div className="space-y-4">
-                          <p className="text-sm text-slate-500">
-                            Please check your inbox and spam folder for the email.
-                          </p>
-                          
-                          <div className="pt-4 border-t border-slate-100">
-                            <p className="text-sm text-slate-600 mb-4 flex items-center justify-center">
-                              <Calendar className="h-4 w-4 mr-1 text-amber-500" />
-                              Your first session starts on February 19, 2025.
-                            </p>
-                            
-                            <div className="mb-6">
-                              <p className="text-sm font-medium text-slate-700 mb-3">Add to your calendar:</p>
-                              <div className="flex flex-wrap justify-center gap-2">
-                                <a 
-                                  href="https://calendar.google.com/calendar/render?action=TEMPLATE&text=Creator%20Webinars%20Session%201&dates=20250219T170000Z/20250219T180000Z&details=Join%20us%20for%20the%20first%20session%20of%20our%20Creator%20Webinars%20series.%20Topic:%20In%20Front%20of%20or%20Behind%20the%20Camera:%20Exploring%20Career%20Paths&location=Online" 
-                                  target="_blank" 
-                                  rel="noopener noreferrer"
-                                  className="inline-flex items-center px-3 py-1.5 bg-white border border-slate-200 rounded-md text-sm text-slate-700 hover:bg-slate-50"
-                                >
-                                  <svg className="w-4 h-4 mr-1.5 text-blue-500" width="16" height="16" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M21.0184 5.65001H20.9737V5.69234C20.9737 5.98894 20.7325 6.23022 20.4359 6.23022H17.9825C17.6859 6.23022 17.4447 5.98873 17.4447 5.69234V3.24402C17.4447 2.94742 17.6859 2.70615 17.9825 2.70615H20.4359C20.7325 2.70615 20.9737 2.94763 20.9737 3.24402V3.23182H21.0184C21.6166 3.23182 22.0991 3.71431 22.0991 4.31251V21.519C22.0991 22.1171 21.6166 22.5998 21.0184 22.5998H2.98158C2.38339 22.5998 1.90088 22.1171 1.90088 21.519V4.31251C1.90088 3.71431 2.38339 3.23182 2.98158 3.23182H3.02632V3.24412C3.02632 3.54072 3.26758 3.78197 3.56418 3.78197H6.01752C6.31412 3.78197 6.55538 3.54072 6.55538 3.24412V0.790811C6.55538 0.49421 6.31412 0.252959 6.01752 0.252959H3.56418C3.26758 0.252959 3.02632 0.494221 3.02632 0.790811V0.799615H2.98158C1.33933 0.799615 0 2.13894 0 3.78119V22.0506C0 23.6926 1.33932 25.0321 2.98158 25.0321H21.0184C22.6607 25.0321 24 23.6926 24 22.0504V3.78109C24 2.13883 22.6607 0.799514 21.0184 0.799514H20.9737V0.7907C20.9737 0.494099 20.7325 0.252847 20.4359 0.252847H17.9825C17.6859 0.252847 17.4447 0.494099 17.4447 0.7907V3.23902C17.4447 3.53562 17.6859 3.77687 17.9825 3.77687H20.4359C20.7325 3.77687 20.9737 3.53562 20.9737 3.23902V3.2316L21.0184 3.23172V5.65001Z" fill="currentColor" />
-                                    <path d="M6.10352e-05 10.7775H24.0001V8.7775H6.10352e-05V10.7775Z" fill="currentColor" />
-                                    <path d="M12 16.5C13.6569 16.5 15 15.1569 15 13.5C15 11.8431 13.6569 10.5 12 10.5C10.3431 10.5 9 11.8431 9 13.5C9 15.1569 10.3431 16.5 12 16.5Z" fill="currentColor" />
-                                  </svg>
-                                  Google Calendar
-                                </a>
-                                <a 
-                                  href="data:text/calendar;charset=utf8,BEGIN:VCALENDAR%0AVERSION:2.0%0ABEGIN:VEVENT%0ADTSTART:20250219T170000Z%0ADTEND:20250219T180000Z%0ASUMMARY:Creator%20Webinars%20Session%201%0ADESCRIPTION:Join%20us%20for%20the%20first%20session%20of%20our%20Creator%20Webinars%20series.%20Topic:%20In%20Front%20of%20or%20Behind%20the%20Camera:%20Exploring%20Career%20Paths%0ALOCATION:Online%0AEND:VEVENT%0AEND:VCALENDAR" 
-                                  download="creator-webinars-session1.ics"
-                                  className="inline-flex items-center px-3 py-1.5 bg-white border border-slate-200 rounded-md text-sm text-slate-700 hover:bg-slate-50"
-                                >
-                                  <svg className="w-4 h-4 mr-1.5 text-gray-500" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M19 4H5C3.89543 4 3 4.89543 3 6V20C3 21.1046 3.89543 22 5 22H19C20.1046 22 21 21.1046 21 20V6C21 4.89543 20.1046 4 19 4Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                    <path d="M16 2V6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                    <path d="M8 2V6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                    <path d="M3 10H21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                  </svg>
-                                  Apple Calendar
-                                </a>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                    
-                    <div className="mt-6 flex items-center justify-center">
-                      {inlineFormPhase < 3 && (
-                        <p className="text-sm inline-flex items-center text-slate-600">
-                          <Star className="h-4 w-4 text-amber-500 fill-current mr-1" />
-                          Sessions start February 19, 2025
-                        </p>
-                      )}
+                      </Link>
                     </div>
+                        
+                    <p className="text-center text-xs text-slate-500 mt-4">
+                      By joining, you'll receive updates about our sessions and webinars. No spam, ever.
+                    </p>
                   </div>
                 </div>
               </div>
@@ -1709,9 +1576,9 @@ export default function Home() {
             <div className="md:col-span-2">
               <h3 className="font-medium text-lg mb-4 text-amber-200">Partners</h3>
               <ul className="space-y-2">
-                <li><a href="https://reachnatl.com/" target="_blank" rel="noopener noreferrer" className="text-amber-100 hover:text-white text-sm">REACH Nationals</a></li>
-                <li><a href="https://www.shinetalentgroup.com/" target="_blank" rel="noopener noreferrer" className="text-amber-100 hover:text-white text-sm">Shine Talent Group</a></li>
-                <li><a href="#" onClick={(e) => { e.preventDefault(); setShowContactPopup(true); }} className="text-amber-100 hover:text-white text-sm cursor-pointer">Partner With Us</a></li>
+                <li><a href="https://reachnationals.org/" target="_blank" rel="noopener noreferrer" className="text-amber-100 hover:text-white text-sm">REACH Nationals</a></li>
+                
+                <li><Link href="/signup" className="text-amber-100 hover:text-white text-sm cursor-pointer">Partner With Us</Link></li>
               </ul>
             </div>
             
@@ -1741,7 +1608,7 @@ export default function Home() {
               </form>
               <p className="text-amber-200 text-xs">
                 <Calendar className="h-3 w-3 inline-block mr-1" />
-                Next session: February 19, 2025 • <Clock className="h-3 w-3 inline-block mx-1" /> 9 AM PT / 12 PM EST
+                Next session: Coming Soon • <Clock className="h-3 w-3 inline-block mx-1" /> TBD
               </p>
             </div>
           </div>

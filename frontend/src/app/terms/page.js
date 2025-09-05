@@ -26,7 +26,7 @@ export default function TermsPage() {
           <div className="flex items-center space-x-2">
             <Link href="/" className="hidden md:flex">
               <Button className="bg-orange-500 hover:bg-orange-600 text-white">
-                Join the Webinars
+                Sign Up
               </Button>
             </Link>
             
@@ -86,7 +86,7 @@ export default function TermsPage() {
                     className="w-full bg-orange-500 hover:bg-orange-600 text-white"
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    Join the Webinars
+                    Sign Up
                   </Button>
                 </Link>
               </div>
